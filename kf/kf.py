@@ -27,31 +27,33 @@ if __name__=="__main__":
     t = np.arange(0, 50, ts)
 
     #Histories to plot
-    est_err_hist = []
+    x_err_hist = []
+    v_err_hist = []
     K_hist = []
     x_hist = []
     x_est_hist = []
     v_hist = []
     v_est_hist = []
-    err_cov_hist = []
+    x_cov_hist = []
+    v_cov_hist = []
     
-    #Figure handles
-    # x_fig, x_ax = plt.subplots(2,1)
-    # v_fig, v_zx = plt.subplots(2,1)
-    # K_fig, K_ax = plt.subplots(1,1)
-    # err_fig, err_ax = plt.subplots(1,1)
-    
-    Q = np.array([[.0001, 0], [0, 0.01]]) # Process noise
+    Q = np.diag([0.0001, 0.01])
     R = .001  # Measurement noise
     Sigma = np.eye(2)*.01 # Initial covariance
     mu = np.array([[0.0, 0.0]]).T
+    x = np.array([[0.0, 0.0]]).T
 
     for i in range(t.size):
         x_est_hist.append(mu.item(0))
         v_est_hist.append(mu.item(1))
-        err_cov_hist.append(Sigma)
+        x_cov_hist.append(Sigma[0,0])
+        v_cov_hist.append(Sigma[1,1])
+        x_hist.append(x.item(0))  # have separate variable for truth.
+        v_hist.append(x.item(1))
+        err = x - mu
+        x_err_hist.append(err.item(0))
+        v_err_hist.append(err.item(1))
 
-        zt = getMeasurement(mu.item(0), R)
         if t[i] < 5:
             u = F
         elif t[i] < 25:
@@ -63,9 +65,10 @@ if __name__=="__main__":
 
         #Prediction step
         mu_bar = Ad @  mu + Bd * u
+        x = Ad @ x + Bd * u + Q @ np.random.normal(size=(2,1))
         Sigma_bar = Ad @ Sigma @ Ad.T + Q
-        x_hist.append(mu_bar.item(0)) #Not sure that this is truth. But it is linear so maybe.
-        v_hist.append(mu_bar.item(1))
+
+        zt = getMeasurement(x.item(0), R)
 
         #Calculate Kalman gain
         Kt = Sigma_bar @ Cd.T @ npl.inv(Cd @ Sigma_bar @ Cd.T + R)
@@ -76,24 +79,42 @@ if __name__=="__main__":
         Sigma = (np.eye(2) - Kt @ Cd) @ Sigma_bar
     
     plt.figure(1)
-    plt.plot(t, x_est_hist, 'b')
-    plt.plot(t, x_hist, 'r')
+    plt.plot(t, x_est_hist, 'b', label="Pos Est")
+    plt.plot(t, x_hist, 'r', label="Pos Truth")
 
-    plt.plot(t, v_est_hist, 'g')
-    plt.plot(t, v_hist, 'y')
-    
+    plt.plot(t, v_est_hist, 'g', label="Vel Est")
+    plt.plot(t, v_hist, 'y', label="Vel Truth")
+    plt.legend()
+    plt.ylabel("Estimate")
+    plt.xlabel("Time (s)")
+    plt.title("State Estimate vs Time")
+
     plt.figure(2)
     K_hist = np.array(K_hist).reshape(1000,2)
     plt.plot(t, K_hist[:,0])
     plt.plot(t, K_hist[:,1])
+    plt.xlabel("Time (s)")
+    plt.ylabel("Kalman Gain")
+    plt.title("Kalman Gain vs Time")
+
+    plt.figure(3)
+    x_cov_hist = np.sqrt(np.array(x_cov_hist)) * 2
+    plt.plot(t, x_err_hist, 'b', label="Pos Error")
+    plt.plot(t, x_cov_hist, 'r', label='2 sigma')
+    plt.plot(t, -x_cov_hist, 'r')
+    plt.legend()
+    plt.xlabel("Time (s)")
+    plt.ylabel("Position Error (m)")
+    plt.title("Position Error vs Time")
+
+    plt.figure(4)
+    v_cov_hist = np.sqrt(np.array(v_cov_hist)) * 2
+    plt.plot(t, v_err_hist, 'b', label="Vel Error")
+    plt.plot(t, v_cov_hist, 'r', label='2 sigma')
+    plt.plot(t, -v_cov_hist, 'r')
+    plt.legend()
+    plt.xlabel("Time (s)")
+    plt.ylabel("Velocity Error (m/s)")
+    plt.title("Velocity Error vs Time")
 
     plt.show()
-
-    # mean = 8.0  # Ex plotting a normal distribution
-    # stddev = 5.0
-
-    # x = np.linspace(0, 16, 100)
-    # y = stats.norm.pdf(x, mean, stddev)
-
-    # plt.plot(x, y)
-    # plt.show()

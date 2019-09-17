@@ -37,9 +37,9 @@ if __name__=="__main__":
     x_cov_hist = []
     v_cov_hist = []
     
-    Q = np.diag([0.0001, 0.01])
-    R = .001  # Measurement noise
-    Sigma = np.eye(2)*.01 # Initial covariance
+    Q = np.diag([0.0001, 0.01])  * 1.0
+    R = .001 * 1.0  # Measurement noise
+    Sigma = np.eye(2) * 1 # Initial covariance
     mu = np.array([[0.0, 0.0]]).T
     x = np.array([[0.0, 0.0]]).T
 
@@ -65,7 +65,7 @@ if __name__=="__main__":
 
         #Prediction step
         mu_bar = Ad @  mu + Bd * u
-        x = Ad @ x + Bd * u + Q @ np.random.normal(size=(2,1))
+        x = Ad @ x + Bd * u + np.sqrt(Q) @ np.random.normal(size=(2,1))
         Sigma_bar = Ad @ Sigma @ Ad.T + Q
 
         zt = getMeasurement(x.item(0), R)
@@ -118,3 +118,11 @@ if __name__=="__main__":
     plt.title("Velocity Error vs Time")
 
     plt.show()
+
+'''
+Question 1: Yes the estimator does work as expected. The estimate tracks the truth pretty closely with most levels of noise (both process and measurement)
+Question 2: Covariance increases after the prediction step and decreases after the measurement update
+Question 3: Gains spike right at the beginning but after the first iteration they settle into steady state values almost immediately and stay there. 
+This is because the initial covariace is initally quite high compared with the covariance after a few iterations when the filter has "settled"
+Increasing the measurement noise decreases the kalman gains while decreasing the measurement noise increases them.
+'''

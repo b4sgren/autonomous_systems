@@ -65,7 +65,7 @@ if __name__=="__main__":
 
         #Prediction step
         mu_bar = Ad @  mu + Bd * u
-        x = Ad @ x + Bd * u + np.sqrt(Q) @ np.random.normal(size=(2,1))
+        x = Ad @ x + Bd * u + np.random.multivariate_normal(np.zeros(2), Q).reshape((2,1)) 
         Sigma_bar = Ad @ Sigma @ Ad.T + Q
 
         zt = getMeasurement(x.item(0), R)

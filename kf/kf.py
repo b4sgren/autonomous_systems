@@ -91,11 +91,12 @@ if __name__=="__main__":
 
     plt.figure(2)
     K_hist = np.array(K_hist).reshape(1000,2)
-    plt.plot(t, K_hist[:,0])
-    plt.plot(t, K_hist[:,1])
+    plt.plot(t, K_hist[:,0], label="Position")
+    plt.plot(t, K_hist[:,1], label="Velocity")
     plt.xlabel("Time (s)")
     plt.ylabel("Kalman Gain")
     plt.title("Kalman Gain vs Time")
+    plt.legend()
 
     plt.figure(3)
     x_cov_hist = np.sqrt(np.array(x_cov_hist)) * 2

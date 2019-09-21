@@ -14,7 +14,7 @@ if __name__=="__main__":
     b = 20.0 #Ns/m
     ts = 0.05 #s
     F = 50.0 #N
-    read_file = False
+    read_file = True
 
     A = np.array([[0, 1],[0, -b/m]])
     B = np.array([[0, 1/m]]).T
@@ -63,6 +63,7 @@ if __name__=="__main__":
         temp = Sigma.item(0)
         Sigma[0,0] = Sigma[1,1]
         Sigma[1,1] = temp
+        x = np.array([[0.0, 0.0]]).T
     else:
         Q = np.diag([0.0001, 0.01])  * 1.0
         R = .001 * 1.0  # Measurement noise
@@ -80,13 +81,13 @@ if __name__=="__main__":
         if read_file:
             x_hist.append(xtr.item(i))
             v_hist.append(vtr.item(i))
-            x = np.array([[xtr.item(i), vtr.item(i)]]).T
         else:
             x_hist.append(x.item(0))  # have separate variable for truth.
             v_hist.append(x.item(1))
         err = x - mu
         x_err_hist.append(err.item(0))
         v_err_hist.append(err.item(1))
+        x = np.array([[xtr.item(i), vtr.item(i)]]).T
 
         if read_file:
             u = u_l.item(i)

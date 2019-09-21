@@ -58,6 +58,7 @@ if __name__=="__main__":
     temp = Sigma.item(0)
     Sigma[0,0] = Sigma[1,1]
     Sigma[1,1] = temp
+    x = np.array([[xtr.item(0), vtr.item(0)]]).T
 
     # Pdb().set_trace()
     for i in range(t.size):
@@ -67,10 +68,10 @@ if __name__=="__main__":
         v_cov_hist.append(Sigma[1,1])
         x_hist.append(xtr.item(i))
         v_hist.append(vtr.item(i))
-        x = np.array([[xtr.item(i), vtr.item(i)]]).T
         err = x - mu
         x_err_hist.append(err.item(0))
         v_err_hist.append(err.item(1))
+        x = np.array([[xtr.item(i), vtr.item(i)]]).T
 
         u = u_l.item(i)
 

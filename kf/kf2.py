@@ -14,7 +14,7 @@ if __name__=="__main__":
     b = 20.0 #Ns/m
     ts = 0.05 #s
     F = 50.0 #N
-    read_file = False
+    read_file = True
 
     A = np.array([[0, 1],[0, -b/m]])
     B = np.array([[0, 1/m]]).T
@@ -27,10 +27,7 @@ if __name__=="__main__":
     Bd = np.array(sysd.B)
     Cd = np.array(sysd.C)
 
-    if read_file:
-        data = sio.loadmat('hw1_soln_data.mat')
-    else:
-        t = np.arange(0, 50, ts)
+    data = sio.loadmat('hw1_soln_data.mat')
 
     #Histories to plot
     x_err_hist = []
@@ -43,33 +40,24 @@ if __name__=="__main__":
     x_cov_hist = []
     v_cov_hist = []
 
-    if read_file:
-        Q = data['R']
-        temp = Q.item(0)
-        Q[0,0] = Q[1,1]
-        Q[1,1] = temp
-        R = data['Q'].item(0)
-        mu = data['mu0']
-        temp = mu.item(0)
-        mu[0,0] = mu[1,0]
-        mu[1,0] = temp
-        u_l = data['u']
-        t = data['t']
-        xtr = data['xtr']
-        vtr = data['vtr']
-        z = data['z']
-        Sigma = data['Sig0']
-        Pdb().set_trace()
-        temp = Sigma.item(0)
-        Sigma[0,0] = Sigma[1,1]
-        Sigma[1,1] = temp
-    else:
-        Q = np.diag([0.0001, 0.01])  * 1.0
-        R = .001 * 1.0  # Measurement noise
-        # Sigma = np.eye(2) * 1 # Initial covariance
-        Sigma = np.array([[1.0, 0.0], [0.0, 0.1]])
-        mu = np.array([[-2.0, 2.0]]).T
-        x = np.array([[0.0, 0.0]]).T
+    Q = data['R']
+    temp = Q.item(0)
+    Q[0,0] = Q[1,1]
+    Q[1,1] = temp
+    R = data['Q'].item(0)
+    mu = data['mu0']
+    temp = mu.item(0)
+    mu[0,0] = mu[1,0]
+    mu[1,0] = temp
+    u_l = data['u']
+    t = data['t']
+    xtr = data['xtr']
+    vtr = data['vtr']
+    z = data['z']
+    Sigma = data['Sig0']
+    temp = Sigma.item(0)
+    Sigma[0,0] = Sigma[1,1]
+    Sigma[1,1] = temp
 
     # Pdb().set_trace()
     for i in range(t.size):
@@ -77,38 +65,20 @@ if __name__=="__main__":
         v_est_hist.append(mu.item(1))
         x_cov_hist.append(Sigma[0,0])
         v_cov_hist.append(Sigma[1,1])
-        if read_file:
-            x_hist.append(xtr.item(i))
-            v_hist.append(vtr.item(i))
-            x = np.array([[xtr.item(i), vtr.item(i)]]).T
-        else:
-            x_hist.append(x.item(0))  # have separate variable for truth.
-            v_hist.append(x.item(1))
+        x_hist.append(xtr.item(i))
+        v_hist.append(vtr.item(i))
+        x = np.array([[xtr.item(i), vtr.item(i)]]).T
         err = x - mu
         x_err_hist.append(err.item(0))
         v_err_hist.append(err.item(1))
 
-        if read_file:
-            u = u_l.item(i)
-        elif t[i] < 5:
-            u = F
-        elif t[i] < 25:
-            u = 0
-        elif t[i] < 30:
-            u = -F
-        else:
-            u = 0
+        u = u_l.item(i)
 
         #Prediction step
         mu_bar = Ad @  mu + Bd * u
-        if not read_file:
-            x = Ad @ x + Bd * u + np.sqrt(Q) @ np.random.normal(size=(2,1))#np.random.multivariate_normal(np.zeros(2), Q).reshape((2,1))
         Sigma_bar = Ad @ Sigma @ Ad.T + Q
 
-        if read_file:
-            zt = z.item(i)
-        else:
-            zt = getMeasurement(x.item(0), R)
+        zt = z.item(i)
 
         #Calculate Kalman gain
         Kt = Sigma_bar @ Cd.T @ npl.inv(Cd @ Sigma_bar @ Cd.T + R)
@@ -118,8 +88,7 @@ if __name__=="__main__":
         mu = mu_bar + Kt @ (zt - Cd @ mu_bar)
         Sigma = (np.eye(2) - Kt @ Cd) @ Sigma_bar
 
-    if read_file:
-        t = t.flatten()
+    t = t.flatten()
     plt.figure(1)
     plt.plot(t, x_est_hist, 'b', label="Pos Est")
     plt.plot(t, x_hist, 'r', label="Pos Truth")
@@ -132,10 +101,7 @@ if __name__=="__main__":
     plt.title("State Estimate vs Time")
 
     plt.figure(2)
-    if read_file:
-        K_hist = np.array(K_hist).reshape(1001,2)
-    else:
-        K_hist = np.array(K_hist).reshape(1000,2)
+    K_hist = np.array(K_hist).reshape(1001,2)
     plt.plot(t, K_hist[:,0], label="Position")
     plt.plot(t, K_hist[:,1], label="Velocity")
     plt.xlabel("Time (s)")

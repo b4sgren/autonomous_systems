@@ -11,6 +11,9 @@ class CarAnimation:
         self.handle = []
 
         self.line = np.array([[0, 0.5], [0, 0]]) #car initially facing north
+        self.truth = []
+        self.est = []
+        self.dr = []
 
         self.ax.scatter(params.lms[0,:], params.lms[1,:], marker='x', color='k')
         plt.axis([-10, 10, -10, 10])

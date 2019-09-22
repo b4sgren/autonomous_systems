@@ -21,12 +21,13 @@ if __name__ == "__main__":
     Car = CarAnimation()
     ekf = EKF(params.dt)
 
-    state = np.array([0, 0, np.pi/2])
+    x = np.array([params.x0, params.y0, params.theta0])
+    x_dr = np.array([params.x0, params.y0, params.theta0]) # not sure I can do this. Will need the v and w wo noise
 
     for i in range(t.size):
         Car.animateCar(state)
         plt.pause(0.1)
 
-        state = ekf.propagateState(state, v[i], w[i])
+        state = ekf.propagateState(x, v[i], w[i])
 
     print("Finished")

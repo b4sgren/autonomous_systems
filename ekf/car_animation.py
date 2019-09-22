@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.lines import Line2D
+import car_params as params
 
 class CarAnimation:
     def __init__(self):
@@ -11,8 +12,9 @@ class CarAnimation:
 
         self.line = np.array([[0, 0.5], [0, 0]]) #car initially facing north
 
+        self.ax.scatter(params.lms[0,:], params.lms[1,:], marker='x', color='k')
         plt.axis([-10, 10, -10, 10])
-        #self.ax.grid_on()
+        self.ax.grid(b=True)
 
     def animateCar(self, state):
         self.drawCar(state)

@@ -2,7 +2,6 @@ import numpy as np
 
 class EKF:
     def __init__(self, t):
-        self.mu = np.array([0.0, 0.0, np.pi/2.0])
         self.dt = t
 
     def propagateState(self, state, v, w):

@@ -55,7 +55,7 @@ if __name__ == "__main__":
         plt.pause(0.02)
 
         zt = getMeasurements(state)
-        mu = ekf.update(mu, zt, v[i], w[i])
+        mu = ekf.update(mu, zt, vc[i], wc[i])
         state = ekf.propagateState(state, v[i], w[i])
         dead_reckon = ekf.propagateState(dead_reckon, vc[i], wc[i])
 

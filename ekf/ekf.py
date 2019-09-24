@@ -1,8 +1,6 @@
 import numpy as np
 import car_params as params
 
-from IPython.core.debugger import Pdb
-
 def unwrap(phi):
     while phi >= np.pi:
         phi = phi - 2 * np.pi
@@ -35,13 +33,12 @@ class EKF:
         mu_bar = self.propagateState(mu, v, w)
         Sigma_bar = G @ self.Sigma @ G.T + V @ M @ V.T
 
-        # Pdb().set_trace()
         for i in range(z.shape[1]):
             lm = params.lms[:,i]
             ds = lm - mu_bar[0:2]
 
             r = np.sqrt(np.sum(ds**2))
-            phi = np.arctan2(ds[1], ds[0]) - mu_bar[2] # write a function to wrap this
+            phi = np.arctan2(ds[1], ds[0]) - mu_bar[2] 
             phi = unwrap(phi)
             z_hat = np.array([r, phi])
 
@@ -51,7 +48,10 @@ class EKF:
             S = H @ Sigma_bar @ H.T + Q
             K = Sigma_bar @ H.T @ np.linalg.inv(S)
 
-            mu_bar = mu_bar + K @ (z[:,i] - z_hat) #make sure z[:,i] is a 1d array
+            innov = z[:,i] - z_hat
+            innov[1] = unwrap(innov[1])
+            mu_bar = mu_bar + K @ (innov) 
+            mu_bar[2] = unwrap(mu_bar[2])
             Sigma_bar = (np.eye(3) - K @ H) @ Sigma_bar
 
         self.Sigma = Sigma_bar

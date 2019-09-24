@@ -6,8 +6,6 @@ import scipy.io as sio
 from ekf import EKF
 from ekf import unwrap
 
-from IPython.core.debugger import Pdb
-
 def generateVelocities(t):
     v = np.zeros_like(t)
     w = np.zeros_like(t)
@@ -27,10 +25,11 @@ def getMeasurements(state):
 
         r = np.sqrt(np.sum(ds**2))
         theta = np.arctan2(ds[1], ds[0]) - state[2]
+        theta = unwrap(theta) #not sure if this should be here or down a few lines
 
         z[0,i] = r + np.random.normal(0, params.sigma_r)
         z[1,i] = theta + np.random.normal(0, params.sigma_theta)
-        z[1,i] = unwrap(z[1,i])
+        # z[1,i] = unwrap(z[1,i])
 
     return z
 

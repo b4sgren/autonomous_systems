@@ -4,9 +4,9 @@ import car_params as params
 from IPython.core.debugger import Pdb
 
 def unwrap(phi):
-    while phi > np.pi:
+    while phi >= np.pi:
         phi = phi - 2 * np.pi
-    while phi < np.pi:
+    while phi < -np.pi:
         phi = phi + 2 * np.pi
     return phi
 

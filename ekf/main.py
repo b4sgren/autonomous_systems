@@ -27,10 +27,10 @@ def getMeasurements(state):
 
         r = np.sqrt(np.sum(ds**2))
         theta = np.arctan2(ds[1], ds[0]) - state[2]
-        theta = unwrap(theta)
 
         z[0,i] = r + np.random.normal(0, params.sigma_r)
         z[1,i] = theta + np.random.normal(0, params.sigma_theta)
+        z[1,i] = unwrap(z[1,i])
 
     return z
 

@@ -4,6 +4,7 @@ from car_animation import CarAnimation
 import car_params as params
 import scipy.io as sio
 from ekf import EKF
+from ekf import unwrap
 
 from IPython.core.debugger import Pdb
 
@@ -26,6 +27,7 @@ def getMeasurements(state):
 
         r = np.sqrt(np.sum(ds**2))
         theta = np.arctan2(ds[1], ds[0]) - state[2]
+        theta = unwrap(theta)
 
         z[0,i] = r + np.random.normal(0, params.sigma_r)
         z[1,i] = theta + np.random.normal(0, params.sigma_theta)
@@ -53,7 +55,7 @@ if __name__ == "__main__":
         plt.pause(0.02)
 
         zt = getMeasurements(state)
-
+        mu = ekf.update(mu, zt, v[i], w[i])
         state = ekf.propagateState(state, v[i], w[i])
         dead_reckon = ekf.propagateState(dead_reckon, vc[i], wc[i])
 

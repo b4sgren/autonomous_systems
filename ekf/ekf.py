@@ -56,7 +56,7 @@ class EKF:
 
         self.Sigma = Sigma_bar
         mu_bar[2] = unwrap(mu_bar[2])
-        return mu_bar
+        return mu_bar, self.Sigma, K
 
     def getJacobians(self, mu, v, w):
         theta = mu[2]

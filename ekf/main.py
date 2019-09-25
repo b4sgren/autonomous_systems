@@ -72,9 +72,10 @@ if __name__ == "__main__":
         Car.animateCar(state, mu, dead_reckon)
         plt.pause(0.02)
 
+        state = ekf.propagateState(state, v[i], w[i])
         zt = getMeasurements(state)
         mu, Sigma, K = ekf.update(mu, zt, vc[i], wc[i])
-        state = ekf.propagateState(state, v[i], w[i])
+        # state = ekf.propagateState(state, v[i], w[i])
         dead_reckon = ekf.propagateState(dead_reckon, vc[i], wc[i])
 
         K_hist.append(K)

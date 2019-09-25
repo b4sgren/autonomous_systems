@@ -37,7 +37,7 @@ class EKF:
             lm = params.lms[:,i]
             ds = lm - mu_bar[0:2]
 
-            r = np.sqrt(np.sum(ds**2))
+            r = np.sqrt(ds @ ds)
             phi = np.arctan2(ds[1], ds[0]) - mu_bar[2] 
             phi = unwrap(phi)
             z_hat = np.array([r, phi])

@@ -6,17 +6,20 @@ import scipy.io as sio
 from ekf import EKF
 from ekf import unwrap
 
-from IPython.core.debugger import Pdb
 
 def generateVelocities(t):
-    v = np.zeros_like(t)
-    w = np.zeros_like(t)
-
-    for i in range(t.size):
-        v[i] = 1 + 0.5 * np.cos(2 * np.pi * 0.2 * t[i])
-        w[i] = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t[i])
+    v = 1 + .05 * np.cos(2 * np.pi * 0.2 * t)
+    w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
 
     return v, w
+
+def readFile():
+    data = sio.loadmat("hw2_soln_data.mat")
+    t = data["t"].flatten()
+    v = data["v"].flatten()
+    w = data["om"].flatten()
+
+    return t, v, w
 
 def getMeasurements(state):
     z = np.zeros_like(params.lms, dtype=float)
@@ -36,10 +39,15 @@ def getMeasurements(state):
     return z
 
 if __name__ == "__main__":
-    t = np.arange(0, params.tf, params.dt)
-    vc, wc = generateVelocities(t)
-    v = vc + np.sqrt(params.alpha1 * vc**2 + params.alpha2 * wc**2) * np.random.randn(vc.size)
-    w = wc + np.sqrt(params.alpha3 * vc**2 + params.alpha4 * wc**2) * np.random.randn(wc.size)
+    read_file = True
+    if read_file:
+        t, v, w = readFile()
+        vc, wc = generateVelocities(t)
+    else:
+        t = np.arange(0, params.tf, params.dt)
+        vc, wc = generateVelocities(t)
+        v = vc + np.sqrt(params.alpha1 * vc**2 + params.alpha2 * wc**2) * np.random.randn(vc.size)
+        w = wc + np.sqrt(params.alpha3 * vc**2 + params.alpha4 * wc**2) * np.random.randn(wc.size)
 
     Car = CarAnimation()
     ekf = EKF(params.dt)

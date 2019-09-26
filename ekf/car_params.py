@@ -16,7 +16,12 @@ sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
 
 #landmark locations
-lms = np.array([[6, -7, 6], [4, 8, -4]])
+gen_lms = False 
+num_lms = 5
+if gen_lms:
+    lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))
+else:
+    lms = np.array([[6, -7, 6], [4, 8, -4]])
 
 dt = 0.1
 tf = 20.0

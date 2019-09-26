@@ -135,7 +135,14 @@ if __name__ == "__main__":
     plt.title("Kalman Gain vs Time")
 
     plt.show()
-
     print("Finished")
-    # plt.waitforbuttonpress()
     plt.close()
+
+'''
+Different Input Velocities: Change linear velocity doesn't do much. Maybe increase the covariance. Same with angular velocity
+Different Landmark locations: Doesn't affect the quality of the estimate too much. Changes the gains a little bit
+Number of Landmarks: Decreasing the number of landmarks decreases the quality of the est, increases covariance and increase abs_val of K. Increasing does the oppopsite
+Sensor Noise: Increasing noise decreases quality of estimate but not by much. This seems to be offset by the number of landmarks we are measuring.
+Control/Motion Noise: Doesn't do much to the estimate. Offset by number of landmarks we measure. Does affect the gain
+Yes the EKF behaves as expected
+'''

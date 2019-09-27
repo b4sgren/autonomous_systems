@@ -17,7 +17,7 @@ sigma_theta = 0.05 #rad
 
 #landmark locations
 gen_lms = False 
-num_lms = 5
+num_lms = 1
 if gen_lms:
     lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))
 else:

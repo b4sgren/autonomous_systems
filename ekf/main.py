@@ -39,7 +39,7 @@ def getMeasurements(state):
     return z
 
 if __name__ == "__main__":
-    read_file = False
+    read_file = True
     if read_file:
         t, v, w = readFile()
         vc, wc = generateVelocities(t)

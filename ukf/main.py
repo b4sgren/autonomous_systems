@@ -3,12 +3,14 @@ import matplotlib.pyplot as plt
 from car_animation import CarAnimation
 import car_params as params
 import scipy.io as sio
-from ekf import EKF
-from ekf import unwrap
+# from ukf import UKF
+from ukf import unwrap
+
+from IPython.core.debugger import Pdb
 
 
 def generateVelocities(t):
-    v = 1 + .05 * np.cos(2 * np.pi * 0.2 * t)
+    v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
     w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
 
     return v, w
@@ -22,24 +24,19 @@ def readFile():
     return t, v, w
 
 def getMeasurements(state):
-    z = np.zeros_like(params.lms, dtype=float)
+    ds = params.lms - state[0:2].reshape((2,1))
+    r = np.sqrt(np.sum(ds**2, axis=0)) + np.random.normal(0, params.sigma_r, size=(params.lms.shape[1]))
+    theta = (np.arctan2(ds[1,:], ds[0,:]) - state[2]) + np.random.normal(0, params.sigma_theta, size=(params.lms.shape[1]))
+    # theta = unwrap(theta)
+    for i in range(theta.size):
+        theta[i] = unwrap(theta.item(i))
 
-    for i in range(z.shape[1]):
-        lm = params.lms[:,i]
-        ds = lm - state[0:2]
-
-        r = np.sqrt(np.sum(ds**2))
-        theta = np.arctan2(ds[1], ds[0]) - state[2]
-        # theta = unwrap(theta) #not sure if this should be here or down a few lines
-
-        z[0,i] = r + np.random.normal(0, params.sigma_r)
-        z[1,i] = theta + np.random.normal(0, params.sigma_theta)
-        z[1,i] = unwrap(z[1,i])
+    z = np.array([[r.flatten()], [theta.flatten()]]).reshape((2,3))
 
     return z
 
 if __name__ == "__main__":
-    read_file = True
+    read_file = False
     if read_file:
         t, v, w = readFile()
         vc, wc = generateVelocities(t)
@@ -50,7 +47,7 @@ if __name__ == "__main__":
         w = wc + np.sqrt(params.alpha3 * vc**2 + params.alpha4 * wc**2) * np.random.randn(wc.size)
 
     Car = CarAnimation()
-    ekf = EKF(params.dt)
+    # ukf = UKF(params.dt)
 
     x_hist = []
     mu_hist = []
@@ -82,12 +79,12 @@ if __name__ == "__main__":
         Car.animateCar(state, mu, dead_reckon)
         plt.pause(0.02)
 
-        state = ekf.propagateState(state, v[i], w[i])
+        # state = ukf.propagateState(state, v[i], w[i])
         zt = getMeasurements(state)
-        mu, Sigma, K = ekf.update(mu, zt, vc[i], wc[i])
-        dead_reckon = ekf.propagateState(dead_reckon, vc[i], wc[i])
+        # mu, Sigma, K = ukf.update(mu, zt, vc[i], wc[i])
+        # dead_reckon = ukf.propagateState(dead_reckon, vc[i], wc[i])
 
-        K_hist.append(K)
+        # K_hist.append(K)
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     x_hist = np.array(x_hist).T

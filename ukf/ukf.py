@@ -61,6 +61,7 @@ class UKF:
     def update(self, mu, Sigma, z, v, w):
         mu_a, Sig_a = self.augmentState(mu, Sigma, v, w)
 
+        #Generate Sigma Points
         L = sp.linalg.cholesky(Sig_a, lower=True)
         Chi_a = self.generateSigmaPoints(mu_a, L)
 
@@ -69,7 +70,11 @@ class UKF:
         Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w)
         mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
         temp = Chi_x_bar - mu_bar.reshape((3,1))
-        Sigma_bar = np.einsum('ij, kj->jik', temp, temp)
+        Sigma_bar = np.sum(np.einsum('ij, kj->jik', temp, temp), axis=0)
+
+        #Measurement updates
+        for i in range(z.shape[1]):
+            Z_bar = self.generateObservationSigmas(Chi_a[0:3,:], Chi_a[5:, :])
 
     def augmentState(self, mu, Sigma, v, w):
         M = np.diag([params.alpha1 * v**2 + params.alpha2 * w**2, params.alpha3 * v**2 + params.alpha4 * w**2])
@@ -89,3 +94,7 @@ class UKF:
         Chi_a[:, params.n+1:] = mu_a.reshape((params.n,1)) - gamma * L
 
         return Chi_a
+    
+    def generateObservationSigmas(self, Chi_x, Chi_z):
+        xy = Chi_x[0:2,:]
+        thetas = Chi_x[2,:]

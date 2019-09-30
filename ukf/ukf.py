@@ -19,6 +19,15 @@ class UKF:
     def __init__(self, t):
         self.dt = t
 
+        self.wm = np.zeros(2 * params.n + 1)
+        self.wc = np.zeros_like(self.wm)
+
+        self.wm[0] = params.lamb / (params.n + params.lamb)
+        self.wc[0] = self.wm[0] + (1 - params.alpha**2 + params.beta)
+
+        self.wm[1:] = 1.0 / (2 * (params.n + params.lamb))
+        self.wc[1:] = 1.0 / (2 * (params.n + params.lamb))
+
     def propagateState(self, state, v, w):
         theta = state[2]
         st = np.sin(theta)
@@ -33,16 +42,15 @@ class UKF:
         temp[2] = unwrap(temp[2])
         return temp
     
-    def propagateSigmaPts(self, Chi_x, Chi_u):
+    def propagateSigmaPts(self, Chi_x, Chi_u, v, w):
         theta = Chi_x[2,:]
         st = np.sin(theta)
         stw = np.sin(theta + Chi_u[1,:] * self.dt)
         ct = np.cos(theta)
         ctw = np.cos(theta + Chi_u[1,:] * self.dt)
 
-        Pdb().set_trace()
-        v = Chi_u[0,:]
-        w = Chi_u[0,:]
+        v = v + Chi_u[0,:]
+        w = w + Chi_u[0,:]
         A = np.array([v/w * (-st + stw),
                      v/w * (ct - ctw),
                      w * self.dt])
@@ -56,7 +64,12 @@ class UKF:
         L = sp.linalg.cholesky(Sig_a, lower=True)
         Chi_a = self.generateSigmaPoints(mu_a, L)
 
-        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:])
+        #propagation step
+        Pdb().set_trace()
+        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w)
+        mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
+        temp = Chi_x_bar - mu_bar.reshape((3,1))
+        Sigma_bar = np.einsum('ij, kj->jik', temp, temp)
 
     def augmentState(self, mu, Sigma, v, w):
         M = np.diag([params.alpha1 * v**2 + params.alpha2 * w**2, params.alpha3 * v**2 + params.alpha4 * w**2])
@@ -72,7 +85,7 @@ class UKF:
         Chi_a = np.zeros((params.n, 2 * params.n + 1))
 
         Chi_a[:,0] = mu_a
-        Chi_a[:,1:params.n+1] = mu_a + gamma * L
-        Chi_a[:, params.n+1:] = mu_a - gamma * L
+        Chi_a[:,1:params.n+1] = mu_a.reshape((params.n,1)) + gamma * L
+        Chi_a[:, params.n+1:] = mu_a.reshape((params.n,1)) - gamma * L
 
         return Chi_a

@@ -32,9 +32,31 @@ class UKF:
         temp = state + A
         temp[2] = unwrap(temp[2])
         return temp
+    
+    def propagateSigmaPts(self, Chi_x, Chi_u):
+        theta = Chi_x[2,:]
+        st = np.sin(theta)
+        stw = np.sin(theta + Chi_u[1,:] * self.dt)
+        ct = np.cos(theta)
+        ctw = np.cos(theta + Chi_u[1,:] * self.dt)
+
+        Pdb().set_trace()
+        v = Chi_u[0,:]
+        w = Chi_u[0,:]
+        A = np.array([v/w * (-st + stw),
+                     v/w * (ct - ctw),
+                     w * self.dt])
+        Chi_bar = Chi_x + A
+
+        return Chi_bar
 
     def update(self, mu, Sigma, z, v, w):
         mu_a, Sig_a = self.augmentState(mu, Sigma, v, w)
+
+        L = sp.linalg.cholesky(Sig_a, lower=True)
+        Chi_a = self.generateSigmaPoints(mu_a, L)
+
+        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:])
 
     def augmentState(self, mu, Sigma, v, w):
         M = np.diag([params.alpha1 * v**2 + params.alpha2 * w**2, params.alpha3 * v**2 + params.alpha4 * w**2])
@@ -43,6 +65,14 @@ class UKF:
         mu_a = np.concatenate((mu, np.zeros(4)))
         Sig_a = sp.linalg.block_diag(Sigma, M, Q)
 
-        Pdb().set_trace()
-
         return mu_a, Sig_a
+
+    def generateSigmaPoints(self, mu_a, L):
+        gamma = np.sqrt(params.n + params.lamb) # Is this supposed to be a vector?
+        Chi_a = np.zeros((params.n, 2 * params.n + 1))
+
+        Chi_a[:,0] = mu_a
+        Chi_a[:,1:params.n+1] = mu_a + gamma * L
+        Chi_a[:, params.n+1:] = mu_a - gamma * L
+
+        return Chi_a

@@ -15,6 +15,13 @@ alpha4 = 0.1
 sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
 
+#UKF Params
+kappa = 4.0
+alpha = 0.4
+beta = 2
+n = 7 # dimension of augmented state
+lamb = alpha**2 * (n + kappa) - 7
+
 #landmark locations
 gen_lms = False 
 num_lms = 1

@@ -81,7 +81,6 @@ if __name__ == "__main__":
 
         state = ukf.propagateState(state, v[i], w[i])
         zt = getMeasurements(state)
-        # Pdb().set_trace()
         mu, Sigma, K = ukf.update(mu, Sigma, zt, vc[i], wc[i])
         dead_reckon = ukf.propagateState(dead_reckon, vc[i], wc[i])
 

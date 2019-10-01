@@ -68,22 +68,13 @@ class UKF:
         Chi_a = self.generateSigmaPoints(mu_a, L)
 
         #propagation step
-        # Pdb().set_trace()
-        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) # ISSUE SEEMS TO BE HERE OR IN RECOVERING MEAN
+        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) # I think I got the issue here. Something else is up though
         mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
         temp_x = Chi_x_bar - mu_bar.reshape((3,1))
         temp_x[2,:] = unwrap(temp_x[2,:])
         Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0)
         # Note that the above line does what I want but some off-diagonal covariances are negative. This is ok for off diags
         #It is the exact same result as the for loop commented out below
-        # K = np.zeros((3, 2))
-
-        # #verification of sigma_bar
-        # Sb = np.zeros_like(Sigma)
-        # for i in range(self.wc.size):
-        #     Sb += self.wc[i] * np.outer(temp_x[:,i], temp_x[:,i])
-
-        # Pdb().set_trace()
 
         #Measurement updates TODO: Make the first one out of the loop maybe
         # for i in range(z.shape[1]):
@@ -114,7 +105,7 @@ class UKF:
         return mu_a, Sig_a
 
     def generateSigmaPoints(self, mu_a, L):
-        gamma = np.sqrt(params.n + params.lamb) # Is this supposed to be a vector?
+        gamma = np.sqrt(params.n + params.lamb)
         Chi_a = np.zeros((params.n, 2 * params.n + 1))
 
         Chi_a[:,0] = mu_a

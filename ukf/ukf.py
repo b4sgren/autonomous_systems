@@ -1,6 +1,6 @@
 import numpy as np
 import car_params as params
-import scipy as sp 
+import scipy as sp
 
 from IPython.core.debugger import Pdb
 
@@ -41,16 +41,18 @@ class UKF:
         temp = state + A
         temp[2] = unwrap(temp[2])
         return temp
-    
-    def propagateSigmaPts(self, Chi_x, Chi_u, v, w):
-        theta = Chi_x[2,:]
-        st = np.sin(theta)
-        stw = np.sin(theta + Chi_u[1,:] * self.dt)
-        ct = np.cos(theta)
-        ctw = np.cos(theta + Chi_u[1,:] * self.dt)
 
+    def propagateSigmaPts(self, Chi_x, Chi_u, v, w):
+        # Pdb().set_trace()
+        theta = Chi_x[2,:]
         v = v + Chi_u[0,:]
         w = w + Chi_u[0,:]
+
+        st = np.sin(theta)
+        stw = np.sin(theta + w * self.dt)
+        ct = np.cos(theta)
+        ctw = np.cos(theta + w * self.dt)
+
         A = np.array([v/w * (-st + stw),
                      v/w * (ct - ctw),
                      w * self.dt])
@@ -67,28 +69,40 @@ class UKF:
 
         #propagation step
         # Pdb().set_trace()
-        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w)
+        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) # ISSUE SEEMS TO BE HERE OR IN RECOVERING MEAN
         mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
         temp_x = Chi_x_bar - mu_bar.reshape((3,1))
-        Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0) # TODO: Make sure this works correctly
+        temp_x[2,:] = unwrap(temp_x[2,:])
+        Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0)
+        # Note that the above line does what I want but some off-diagonal covariances are negative. This is ok for off diags
+        #It is the exact same result as the for loop commented out below
+        K = np.zeros((3, 2))
+
+        # #verification of sigma_bar
+        # Sb = np.zeros_like(Sigma)
+        # for i in range(self.wc.size):
+        #     Sb += self.wc[i] * np.outer(temp_x[:,i], temp_x[:,i])
+
+        # Pdb().set_trace()
 
         #Measurement updates TODO: Make the first one out of the loop maybe
         # for i in range(z.shape[1]):
-        for i in range(1): #Start with just the first landmark only
-            Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
-            z_hat = np.sum(self.wm * Z_bar, axis=1) # Make sure that this does what I want it to
-            temp_z = Z_bar - z_hat.reshape((2, 1))
+        # for i in range(1): #Start with just the first landmark only
+        #     Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
+        #     z_hat = np.sum(self.wm * Z_bar, axis=1)
+        #     temp_z = Z_bar - z_hat.reshape((2, 1))
+        #
+        #     S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
+        #     Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0)
+        #
+        #     #Calculate the kalman gain
+        #     K = Sigma_xz @ np.linalg.inv(S)
+        #     mu_bar = mu_bar + K @ (z[:,i] - z_hat)
+        #     Sigma_bar = Sigma_bar - K @ S @ K.T
 
-            S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
-            Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0) # TODO: Make sure this works correctly
+            #redraw sigma points (if not the last lm) and then reset stuff. Chi_x_bar?, temp_x
+        return mu_bar, Sigma_bar, K
 
-            #Calculate the kalman gain
-            K = Sigma_xz @ np.linalg.inv(S)
-            mu_bar = mu_bar + K @ (z[:,i] - z_hat)
-            Sigma_bar = Sigma_bar - K @ S @ K.T
-
-            #redraw sigma points (if not the last lm) and then reset stuff. Chi_x_bar?, temp_x, 
-        
 
     def augmentState(self, mu, Sigma, v, w):
         M = np.diag([params.alpha1 * v**2 + params.alpha2 * w**2, params.alpha3 * v**2 + params.alpha4 * w**2])
@@ -108,15 +122,15 @@ class UKF:
         Chi_a[:, params.n+1:] = mu_a.reshape((params.n,1)) - gamma * L
 
         return Chi_a
-    
+
     def generateObservationSigmas(self, Chi_x, Chi_z, lm):
         xy = Chi_x[0:2,:]
         thetas = Chi_x[2,:]
 
-        ds = lm.reshape((2,1)) - xy 
-        r = np.sqrt(np.sum(ds**2, axis=0)) 
+        ds = lm.reshape((2,1)) - xy
+        r = np.sqrt(np.sum(ds**2, axis=0))
 
-        psi = np.arctan2(ds[1,:], ds[0,:]) - thetas #not sure it should be thetas or the theta in mu_bar???
+        psi = np.arctan2(ds[1,:], ds[0,:]) - thetas
         psi = unwrap(psi)
 
         Z = np.vstack((r, psi)) + Chi_z

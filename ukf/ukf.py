@@ -76,7 +76,7 @@ class UKF:
         Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0)
         # Note that the above line does what I want but some off-diagonal covariances are negative. This is ok for off diags
         #It is the exact same result as the for loop commented out below
-        K = np.zeros((3, 2))
+        # K = np.zeros((3, 2))
 
         # #verification of sigma_bar
         # Sb = np.zeros_like(Sigma)
@@ -87,18 +87,18 @@ class UKF:
 
         #Measurement updates TODO: Make the first one out of the loop maybe
         # for i in range(z.shape[1]):
-        # for i in range(1): #Start with just the first landmark only
-        #     Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
-        #     z_hat = np.sum(self.wm * Z_bar, axis=1)
-        #     temp_z = Z_bar - z_hat.reshape((2, 1))
-        #
-        #     S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
-        #     Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0)
-        #
-        #     #Calculate the kalman gain
-        #     K = Sigma_xz @ np.linalg.inv(S)
-        #     mu_bar = mu_bar + K @ (z[:,i] - z_hat)
-        #     Sigma_bar = Sigma_bar - K @ S @ K.T
+        for i in range(1): #Start with just the first landmark only
+            Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
+            z_hat = np.sum(self.wm * Z_bar, axis=1)
+            temp_z = Z_bar - z_hat.reshape((2, 1))
+
+            S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
+            Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0)
+
+            #Calculate the kalman gain
+            K = Sigma_xz @ np.linalg.inv(S)
+            mu_bar = mu_bar + K @ (z[:,i] - z_hat)
+            Sigma_bar = Sigma_bar - K @ S @ K.T
 
             #redraw sigma points (if not the last lm) and then reset stuff. Chi_x_bar?, temp_x
         return mu_bar, Sigma_bar, K

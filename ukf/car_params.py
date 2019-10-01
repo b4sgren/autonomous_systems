@@ -20,10 +20,10 @@ kappa = 4.0
 alpha = 0.4
 beta = 2
 n = 7 # dimension of augmented state
-lamb = alpha**2 * (n + kappa) - 7
+lamb = alpha**2 * (n + kappa) - n
 
 #landmark locations
-gen_lms = False 
+gen_lms = False
 num_lms = 1
 if gen_lms:
     lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))

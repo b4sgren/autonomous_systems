@@ -81,10 +81,11 @@ if __name__ == "__main__":
 
         state = ukf.propagateState(state, v[i], w[i])
         zt = getMeasurements(state)
+        # Pdb().set_trace()
         mu, Sigma, K = ukf.update(mu, Sigma, zt, vc[i], wc[i])
         dead_reckon = ukf.propagateState(dead_reckon, vc[i], wc[i])
 
-        # K_hist.append(K)
+        K_hist.append(K)
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     x_hist = np.array(x_hist).T

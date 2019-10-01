@@ -31,7 +31,7 @@ class UKF:
                     v/w * ct - v/w * ctw,
                     w * self.dt])
         temp = state + A
-        # temp[2] = unwrap(temp[2])
+        temp[2] = unwrap(temp[2])
         return temp
 
     def propagateSigmaPts(self, Chi_x, Chi_u, v, w):
@@ -61,18 +61,17 @@ class UKF:
         #propagation step
         Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) 
         mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
-        # mu_bar[2] = unwrap(mu_bar[2])
+        mu_bar[2] = unwrap(mu_bar[2])
         temp_x = Chi_x_bar - mu_bar.reshape((3,1))
-        # temp_x[2,:] = unwrap(temp_x[2,:])
+        temp_x[2,:] = unwrap(temp_x[2,:])
         Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0)
 
         #Measurement updates 
         for i in range(z.shape[1]):
-        # for i in range(1): #Start with just the first landmark only
             Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
             z_hat = np.sum(self.wm * Z_bar, axis=1)
             temp_z = Z_bar - z_hat.reshape((2, 1))
-            # temp_z[1,:] = unwrap(temp_z[1,:])
+            temp_z[1,:] = unwrap(temp_z[1,:])
         
             S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
             Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0)
@@ -82,6 +81,7 @@ class UKF:
             innov = z[:,i] - z_hat
             innov[1] = unwrap(innov[1])
             mu_bar = mu_bar + K @ (innov)
+            mu_bar[2] = unwrap(mu_bar[2])
             Sigma_bar = Sigma_bar - K @ S @ K.T
 
             #redraw sigma points (if not the last lm) and then reset stuff

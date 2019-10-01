@@ -24,9 +24,7 @@ def getMeasurements(state):
     ds = params.lms - state[0:2].reshape((2,1))
     r = np.sqrt(np.sum(ds**2, axis=0)) + np.random.normal(0, params.sigma_r, size=(params.lms.shape[1]))
     theta = (np.arctan2(ds[1,:], ds[0,:]) - state[2]) + np.random.normal(0, params.sigma_theta, size=(params.lms.shape[1]))
-    # theta = unwrap(theta)
-    for i in range(theta.size):
-        theta[i] = unwrap(theta.item(i))
+    theta = unwrap(theta)
 
     z = np.array([[r.flatten()], [theta.flatten()]]).reshape((2,3))
 

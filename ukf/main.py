@@ -6,9 +6,6 @@ import scipy.io as sio
 from ukf import UKF
 from ukf import unwrap
 
-from IPython.core.debugger import Pdb
-
-
 def generateVelocities(t):
     v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
     w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)

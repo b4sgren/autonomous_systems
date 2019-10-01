@@ -2,16 +2,7 @@ import numpy as np
 import car_params as params
 import scipy as sp
 
-from IPython.core.debugger import Pdb
-
 def unwrap(phi):
-    # Pdb().set_trace()
-    # phi[phi >= np.pi] -= 2 * np.pi # not sure that this will work
-    # phi[phi < -np.pi] += 2 * np.pi
-    # while phi >= np.pi:
-    #     phi = phi - 2 * np.pi
-    # while phi < -np.pi:
-    #     phi = phi + 2 * np.pi
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
     return phi
 
@@ -47,7 +38,6 @@ class UKF:
         theta = Chi_x[2,:]
         v = v + Chi_u[0,:]
         w = w + Chi_u[1,:]
-        # Pdb().set_trace()
 
         st = np.sin(theta)
         stw = np.sin(theta + w * self.dt)
@@ -69,17 +59,14 @@ class UKF:
         Chi_a = self.generateSigmaPoints(mu_a, L)
 
         #propagation step
-        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) # I think I got the issue here. Something else is up though
-        # Pdb().set_trace()
+        Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) 
         mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
         # mu_bar[2] = unwrap(mu_bar[2])
         temp_x = Chi_x_bar - mu_bar.reshape((3,1))
         # temp_x[2,:] = unwrap(temp_x[2,:])
         Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0)
-        #It is the exact same result as the for loop commented out below
-        K = np.zeros((3,2))
 
-        #Measurement updates TODO: Make the first one out of the loop maybe
+        #Measurement updates 
         for i in range(z.shape[1]):
         # for i in range(1): #Start with just the first landmark only
             Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
@@ -94,14 +81,11 @@ class UKF:
             K = Sigma_xz @ np.linalg.inv(S)
             innov = z[:,i] - z_hat
             innov[1] = unwrap(innov[1])
-            # if np.max(np.abs(K @ innov)) > 0.25:
-            #     Pdb().set_trace()
             mu_bar = mu_bar + K @ (innov)
             Sigma_bar = Sigma_bar - K @ S @ K.T
 
-            #redraw sigma points (if not the last lm) and then reset stuff. Chi_x_bar?, temp_x
+            #redraw sigma points (if not the last lm) and then reset stuff
             if not i == (z.shape[1] - 1):
-                # Pdb().set_trace()
                 mu_a, Sig_a = self.augmentState(mu_bar, Sigma_bar, v, w)
                 L = sp.linalg.cholesky(Sig_a, lower=True)
                 Chi_a = self.generateSigmaPoints(mu_a, L)

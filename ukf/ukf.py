@@ -12,6 +12,7 @@ def unwrap(phi):
     #     phi = phi - 2 * np.pi
     # while phi < -np.pi:
     #     phi = phi + 2 * np.pi
+    phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
     return phi
 
 
@@ -43,18 +44,18 @@ class UKF:
         return temp
 
     def propagateSigmaPts(self, Chi_x, Chi_u, v, w):
-        # Pdb().set_trace()
         theta = Chi_x[2,:]
         v = v + Chi_u[0,:]
-        w = w + Chi_u[0,:]
+        w = w + Chi_u[1,:]
+        # Pdb().set_trace()
 
         st = np.sin(theta)
         stw = np.sin(theta + w * self.dt)
         ct = np.cos(theta)
         ctw = np.cos(theta + w * self.dt)
 
-        A = np.array([v/w * (-st + stw),
-                     v/w * (ct - ctw),
+        A = np.array([-v/w * st + v/w * stw,
+                     v/w * ct - v/w * ctw,
                      w * self.dt])
         Chi_bar = Chi_x + A
 
@@ -69,27 +70,34 @@ class UKF:
 
         #propagation step
         Chi_x_bar = self.propagateSigmaPts(Chi_a[0:3,:], Chi_a[3:5,:], v, w) # I think I got the issue here. Something else is up though
+        Pdb().set_trace()
         mu_bar = np.sum(self.wm * Chi_x_bar, axis=1)
+        # mu_bar[2] = unwrap(mu_bar[2])
         temp_x = Chi_x_bar - mu_bar.reshape((3,1))
-        temp_x[2,:] = unwrap(temp_x[2,:])
+        # temp_x[2,:] = unwrap(temp_x[2,:])
         Sigma_bar = np.sum(self.wc.reshape(2*params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_x), axis=0)
-        # Note that the above line does what I want but some off-diagonal covariances are negative. This is ok for off diags
         #It is the exact same result as the for loop commented out below
+        K = np.zeros((3,2))
 
         #Measurement updates TODO: Make the first one out of the loop maybe
         # for i in range(z.shape[1]):
-        for i in range(1): #Start with just the first landmark only
-            Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
-            z_hat = np.sum(self.wm * Z_bar, axis=1)
-            temp_z = Z_bar - z_hat.reshape((2, 1))
-
-            S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
-            Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0)
-
-            #Calculate the kalman gain
-            K = Sigma_xz @ np.linalg.inv(S)
-            mu_bar = mu_bar + K @ (z[:,i] - z_hat)
-            Sigma_bar = Sigma_bar - K @ S @ K.T
+        # for i in range(1): #Start with just the first landmark only
+        #     Z_bar = self.generateObservationSigmas(Chi_x_bar, Chi_a[5:, :], params.lms[:,i])
+        #     z_hat = np.sum(self.wm * Z_bar, axis=1)
+        #     temp_z = Z_bar - z_hat.reshape((2, 1))
+        #     # temp_z[1,:] = unwrap(temp_z[1,:])
+        #
+        #     S = np.sum(self.wc.reshape(2 * params.n + 1, 1, 1) * np.einsum('ij, kj->jik', temp_z, temp_z), axis=0)
+        #     Sigma_xz = np.sum(self.wc.reshape(2 * params.n+1, 1, 1) * np.einsum('ij, kj->jik', temp_x, temp_z), axis=0)
+        #
+        #     #Calculate the kalman gain
+        #     K = Sigma_xz @ np.linalg.inv(S)
+        #     innov = z[:,i] - z_hat
+        #     innov[1] = unwrap(innov[1])
+        #     if np.max(np.abs(K @ innov)) > 0.25:
+        #         Pdb().set_trace()
+        #     mu_bar = mu_bar + K @ (innov)
+        #     Sigma_bar = Sigma_bar - K @ S @ K.T
 
             #redraw sigma points (if not the last lm) and then reset stuff. Chi_x_bar?, temp_x
         return mu_bar, Sigma_bar, K

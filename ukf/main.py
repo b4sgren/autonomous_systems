@@ -13,7 +13,7 @@ def generateVelocities(t):
     return v, w
 
 def readFile():
-    data = sio.loadmat("hw2_soln_data.mat")
+    data = sio.loadmat("hw3_4_soln_data.mat")
     t = data["t"].flatten()
     v = data["v"].flatten()
     w = data["om"].flatten()

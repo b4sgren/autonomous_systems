@@ -50,7 +50,6 @@ if __name__ == "__main__":
     x_covar_hist = []
     y_covar_hist = []
     psi_covar_hist = []
-    K_hist = []
 
     x0 = params.x0
     y0 = params.y0
@@ -60,7 +59,7 @@ if __name__ == "__main__":
     dead_reckon = np.array([x0, y0, phi0])
     mu = np.array([x0, y0, phi0])
     Sigma = np.eye(3)
-    particles = (mu + np.random.multivariate_normal(np.zeros(3), Sigma,  params.M)).T
+    Chi = (mu + np.random.multivariate_normal(np.zeros(3), Sigma,  params.M)).T
 
     for i in range(t.size):
         #stuff for plotting
@@ -78,10 +77,9 @@ if __name__ == "__main__":
 
         state = filter.propagateState(state, v[i], w[i])
         zt = getMeasurements(state)
-        mu, Sigma, particles = filter.update(mu, Sigma, particles, zt, vc[i], wc[i])
+        mu, Sigma, Chi = filter.update(mu, Sigma, Chi, zt, vc[i], wc[i])
         dead_reckon = filter.propagateState(dead_reckon, vc[i], wc[i])
 
-        K_hist.append(K)
 
     # fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     # x_hist = np.array(x_hist).T
@@ -123,18 +121,6 @@ if __name__ == "__main__":
     # ax2[2].set_xlabel("Time (s)")
     # ax2[2].legend()
     # ax2[0].set_title("Error vs Time")
-
-    # plt.figure(4)
-    # K_hist = np.array(K_hist)
-    # plt.plot(t, K_hist[:,0,0])
-    # plt.plot(t, K_hist[:,1,0])
-    # plt.plot(t, K_hist[:,2,0])
-    # plt.plot(t, K_hist[:,0,1])
-    # plt.plot(t, K_hist[:,1,1])
-    # plt.plot(t, K_hist[:,2,1])
-    # plt.xlabel("Time (s)")
-    # plt.ylabel("Kalman Gain")
-    # plt.title("Kalman Gain vs Time")
 
     # plt.show()
     print("Finished")

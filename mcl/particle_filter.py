@@ -64,11 +64,15 @@ class ParticleFilter:
         return p
     
     def measurement_update(self, Chi, z):
-        Pdb().set_trace()
+        Chi_bar = np.zeros_like(Chi)
+        w = np.zeros(Chi_bar.shape[1])
+        # Pdb().set_trace()
         for i in range(params.M): # See if I can vectorize this later
             #weight is the product of the probabilities for each measurement
             z_hat = self.getExpectedMeasurements(Chi[:,i])
-            w = self.getProbability(z-z_hat, self.R)
+            w[i] = self.getProbability(z-z_hat, self.R)
+            Chi_bar[:,i] = Chi[:,i] # Is this correct? Should I just return Chi?
+        return Chi_bar, w
 
     def update(self, mu, Sigma, Chi, z, v, w):
         Chi = self.propagateParticles(Chi, v, w)

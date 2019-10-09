@@ -2,8 +2,6 @@ import numpy as np
 import car_params as params
 import scipy as sp
 
-from IPython.core.debugger import Pdb
-
 def unwrap(phi):
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
     return phi
@@ -58,13 +56,10 @@ class ParticleFilter:
     
     def getProbability(self, e, Sigma):
         p = 1.0
-        D = np.sqrt((2 * np.pi)**3 * np.linalg.det(Sigma))
-        S_inv = np.linalg.inv(Sigma)
-        for i in range(e.shape[1]): # Can I vectorize this
-            pr = 1.0/np.sqrt(2 * np.pi * self.R[0,0]) * np.exp(-0.5 * e[0,i]**2/self.R[0,0])
-            p_psi = 1.0/np.sqrt(2 * np.pi * self.R[1,1]) * np.exp(-0.5 * e[1,i]**2/self.R[1,1])
-            p *= (pr * p_psi)
-        if p < .0001:
+        pr = 1.0/np.sqrt(2*np.pi*Sigma[0,0]) * np.exp(-0.5 * e[0,:]**2/Sigma[0,0])
+        p_psi = 1.0/np.sqrt(2 * np.pi * Sigma[1,1]) * np.exp(-0.5 * e[1,:]**2/Sigma[1,1])
+        p = np.prod(pr * p_psi)
+        if p < .0001: # This is to keep the probability from going to 0 on all the particles. If they are all 0 will be a uniform distribution
             p = .0001
         return p
     

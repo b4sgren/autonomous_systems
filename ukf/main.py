@@ -7,8 +7,8 @@ from ukf import UKF
 from ukf import unwrap
 
 def generateVelocities(t):
-    v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
-    w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
+    v = 1 + .5 * np.cos(2 * np.pi * 0.3 * t) #1 + .5 * np.cos(2 * np.pi * 0.2 * t)
+    w = -0.2 + 2 * np.cos(2 * np.pi * 1.0 * t) # -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
 
     return v, w
 
@@ -31,7 +31,7 @@ def getMeasurements(state):
     return z
 
 if __name__ == "__main__":
-    read_file = False
+    read_file = True
     if read_file:
         t, v, w = readFile()
         vc, wc = generateVelocities(t)

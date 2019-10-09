@@ -60,6 +60,9 @@ if __name__ == "__main__":
     mu = np.array([x0, y0, phi0])
     Sigma = np.eye(3)
     Chi = (mu + np.random.multivariate_normal(np.zeros(3), Sigma,  params.M)).T
+    # Chi = np.zeros((3, params.M))
+    # Chi[0:2,:] = np.random.uniform(-10.0, 10.0, size=(2, params.M))
+    # Chi[2,:] = np.random.uniform(-np.pi, np.pi, size=(params.M))
 
     for i in range(t.size):
         #stuff for plotting
@@ -79,7 +82,6 @@ if __name__ == "__main__":
         zt = getMeasurements(state)
         mu, Sigma, Chi = filter.update(mu, Sigma, Chi, zt, vc[i], wc[i])
         dead_reckon = filter.propagateState(dead_reckon, vc[i], wc[i])
-
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     x_hist = np.array(x_hist).T

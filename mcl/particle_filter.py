@@ -90,9 +90,9 @@ class ParticleFilter:
         return Chi_bar
 
     def recoverMeanAndCovar(self, Chi, w):
-        mu = np.sum(w * Chi, axis=1)
+        mu = np.mean(Chi, axis=1)
         temp_x = Chi - mu.reshape((3,1))
-        Sigma = np.einsum('ij, kj->ik', w * temp_x, temp_x)
+        Sigma = np.cov(temp_x)
 
         return mu, Sigma
 

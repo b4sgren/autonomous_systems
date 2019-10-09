@@ -74,7 +74,7 @@ if __name__ == "__main__":
         y_covar_hist.append(Sigma[1,1])
         psi_covar_hist.append(Sigma[2,2])
 
-        Car.animateCar(state, mu, dead_reckon)
+        Car.animateCar(state, mu, dead_reckon, Chi)
         plt.pause(0.02)
 
         state = filter.propagateState(state, v[i], w[i])

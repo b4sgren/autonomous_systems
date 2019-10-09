@@ -61,7 +61,11 @@ class ParticleFilter:
         D = np.sqrt((2 * np.pi)**3 * np.linalg.det(Sigma))
         S_inv = np.linalg.inv(Sigma)
         for i in range(e.shape[1]): # Can I vectorize this
-            p *= D * np.exp(-0.5 * e[:,i].T @ S_inv @ e[:,i])
+            pr = 1.0/np.sqrt(2 * np.pi * self.R[0,0]) * np.exp(-0.5 * e[0,i]**2/self.R[0,0])
+            p_psi = 1.0/np.sqrt(2 * np.pi * self.R[1,1]) * np.exp(-0.5 * e[1,i]**2/self.R[1,1])
+            p *= (pr * p_psi)
+        if p < .0001:
+            p = .0001
         return p
     
     def measurement_update(self, Chi, z):
@@ -71,6 +75,7 @@ class ParticleFilter:
             #weight is the product of the probabilities for each measurement
             z_hat = self.getExpectedMeasurements(Chi[:,i])
             w[i] = self.getProbability(z-z_hat, self.R)
+            w = w/np.sum(w) #make sure they sum to one
             Chi_bar[:,i] = Chi[:,i] # Is this correct? Should I just return Chi?
         return Chi_bar, w
 
@@ -79,10 +84,10 @@ class ParticleFilter:
         M = params.M
         r = np.random.uniform(0, 1.0/M)
         c = w.item(0)
-        i = 1
+        i = 0
 
         for m in range(M): #Can I vectorize this?
-            U = r + (m-1) * 1.0/M 
+            U = r + (m) * 1.0/M 
             while U > c:
                 i += 1
                 c += w.item(i)

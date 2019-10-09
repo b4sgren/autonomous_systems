@@ -81,47 +81,47 @@ if __name__ == "__main__":
         dead_reckon = filter.propagateState(dead_reckon, vc[i], wc[i])
 
 
-    # fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
-    # x_hist = np.array(x_hist).T
-    # mu_hist = np.array(mu_hist).T
-    # ax1[0].plot(t, x_hist[0,:], label="Truth")
-    # ax1[0].plot(t, mu_hist[0,:], label="Est")
-    # ax1[0].set_ylabel("x (m)")
-    # ax1[0].legend()
-    # ax1[1].plot(t, x_hist[1,:], label="Truth")
-    # ax1[1].plot(t, mu_hist[1,:], label="Est")
-    # ax1[1].set_ylabel("y (m)")
-    # ax1[1].legend()
-    # ax1[2].plot(t, x_hist[2,:], label="Truth")
-    # ax1[2].plot(t, mu_hist[2,:], label="Est")
-    # ax1[2].set_xlabel("Time (s)")
-    # ax1[2].set_ylabel("$\psi$ (rad)")
-    # ax1[2].legend()
-    # ax1[0].set_title("Estimate vs Truth")
+    fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
+    x_hist = np.array(x_hist).T
+    mu_hist = np.array(mu_hist).T
+    ax1[0].plot(t, x_hist[0,:], label="Truth")
+    ax1[0].plot(t, mu_hist[0,:], label="Est")
+    ax1[0].set_ylabel("x (m)")
+    ax1[0].legend()
+    ax1[1].plot(t, x_hist[1,:], label="Truth")
+    ax1[1].plot(t, mu_hist[1,:], label="Est")
+    ax1[1].set_ylabel("y (m)")
+    ax1[1].legend()
+    ax1[2].plot(t, x_hist[2,:], label="Truth")
+    ax1[2].plot(t, mu_hist[2,:], label="Est")
+    ax1[2].set_xlabel("Time (s)")
+    ax1[2].set_ylabel("$\psi$ (rad)")
+    ax1[2].legend()
+    ax1[0].set_title("Estimate vs Truth")
 
-    # fig2, ax2 = plt.subplots(nrows=3, ncols=1, sharex=True)
-    # err_hist = np.array(err_hist).T
-    # x_err_bnd = np.sqrt(np.array(x_covar_hist)) * 2
-    # y_err_bnd = np.sqrt(np.array(y_covar_hist)) * 2
-    # psi_err_bnd = np.sqrt(np.array(psi_covar_hist)) * 2
-    # ax2[0].plot(t, err_hist[0,:], label="Err")
-    # ax2[0].plot(t, x_err_bnd, 'r', label="2 $\sigma$")
-    # ax2[0].plot(t, -x_err_bnd, 'r')
-    # ax2[0].set_ylabel("Err (m)")
-    # ax2[0].legend()
-    # ax2[1].plot(t, err_hist[1,:], label="Err")
-    # ax2[1].plot(t, y_err_bnd, 'r', label="2 $\sigma$")
-    # ax2[1].plot(t, -y_err_bnd, 'r')
-    # ax2[1].set_ylabel("Err (m)")
-    # ax2[1].legend()
-    # ax2[2].plot(t, err_hist[2,:], label="Err")
-    # ax2[2].plot(t, psi_err_bnd, 'r', label="2 $\sigma$")
-    # ax2[2].plot(t, -psi_err_bnd, 'r')
-    # ax2[2].set_ylabel("Err (m)")
-    # ax2[2].set_xlabel("Time (s)")
-    # ax2[2].legend()
-    # ax2[0].set_title("Error vs Time")
+    fig2, ax2 = plt.subplots(nrows=3, ncols=1, sharex=True)
+    err_hist = np.array(err_hist).T
+    x_err_bnd = np.sqrt(np.array(x_covar_hist)) * 2
+    y_err_bnd = np.sqrt(np.array(y_covar_hist)) * 2
+    psi_err_bnd = np.sqrt(np.array(psi_covar_hist)) * 2
+    ax2[0].plot(t, err_hist[0,:], label="Err")
+    ax2[0].plot(t, x_err_bnd, 'r', label="2 $\sigma$")
+    ax2[0].plot(t, -x_err_bnd, 'r')
+    ax2[0].set_ylabel("Err (m)")
+    ax2[0].legend()
+    ax2[1].plot(t, err_hist[1,:], label="Err")
+    ax2[1].plot(t, y_err_bnd, 'r', label="2 $\sigma$")
+    ax2[1].plot(t, -y_err_bnd, 'r')
+    ax2[1].set_ylabel("Err (m)")
+    ax2[1].legend()
+    ax2[2].plot(t, err_hist[2,:], label="Err")
+    ax2[2].plot(t, psi_err_bnd, 'r', label="2 $\sigma$")
+    ax2[2].plot(t, -psi_err_bnd, 'r')
+    ax2[2].set_ylabel("Err (m)")
+    ax2[2].set_xlabel("Time (s)")
+    ax2[2].legend()
+    ax2[0].set_title("Error vs Time")
 
-    # plt.show()
+    plt.show()
     print("Finished")
     plt.close()

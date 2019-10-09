@@ -25,7 +25,7 @@ class ParticleFilter:
         temp = state + A
         temp[2] = unwrap(temp[2])
         return temp
-    
+
     def propagateParticles(self, Chi, vc, wc):
         #Add noise to velocities to separate the particles
         v = vc + np.sqrt(params.alpha1 * vc**2 + params.alpha2 * wc**2) * np.random.randn(params.M)
@@ -46,14 +46,14 @@ class ParticleFilter:
 
     def getExpectedMeasurements(self, x):
         xy = x[0:2]
-        ds = params.lms - xy.reshape((2,1)) 
+        ds = params.lms - xy.reshape((2,1))
 
         r = np.linalg.norm(ds, axis=0)
         psi = np.arctan2(ds[1,:], ds[0,:]) - x[2]
         psi = unwrap(psi)
 
         return np.vstack((r, psi))
-    
+
     def getProbability(self, e, Sigma):
         p = 1.0
         pr = 1.0/np.sqrt(2*np.pi*Sigma[0,0]) * np.exp(-0.5 * e[0,:]**2/Sigma[0,0])
@@ -62,7 +62,7 @@ class ParticleFilter:
         if p < .0001: # This is to keep the probability from going to 0 on all the particles. If they are all 0 will be a uniform distribution
             p = .0001
         return p
-    
+
     def measurement_update(self, Chi, z):
         Chi_bar = np.zeros_like(Chi)
         w = np.zeros(Chi_bar.shape[1])
@@ -70,8 +70,8 @@ class ParticleFilter:
             #weight is the product of the probabilities for each measurement
             z_hat = self.getExpectedMeasurements(Chi[:,i])
             w[i] = self.getProbability(z-z_hat, self.R)
-            w = w/np.sum(w) #make sure they sum to one
             Chi_bar[:,i] = Chi[:,i] # Is this correct? Should I just return Chi?
+        w = w/np.sum(w) #make sure they sum to one
         return Chi_bar, w
 
     def lowVarianceSampling(self, Chi, w):
@@ -82,7 +82,7 @@ class ParticleFilter:
         i = 0
 
         for m in range(M): #Can I vectorize this?
-            U = r + (m) * 1.0/M 
+            U = r + (m) * 1.0/M
             while U > c:
                 i += 1
                 c += w.item(i)

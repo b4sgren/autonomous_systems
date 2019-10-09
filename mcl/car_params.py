@@ -10,13 +10,15 @@ alpha1 = 0.1
 alpha2 = 0.01
 alpha3 = 0.01
 alpha4 = 0.1
+alpha5 = 0.01
+alpha6 = 0.01
 
 # Sensor noise params
 sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
 
 #number of particles
-M = 1000 
+M = 1000
 
 #landmark locations
 gen_lms = False

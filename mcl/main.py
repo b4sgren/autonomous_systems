@@ -57,9 +57,6 @@ if __name__ == "__main__":
 
     state = np.array([x0, y0, phi0])
     dead_reckon = np.array([x0, y0, phi0])
-    # mu = np.array([x0, y0, phi0])
-    # Sigma = np.eye(3)
-    # Chi = (mu + np.random.multivariate_normal(np.zeros(3), Sigma,  params.M)).T
     Chi = np.zeros((3, params.M))
     Chi[0:2,:] = np.random.uniform(-10.0, 10.0, size=(2, params.M))
     Chi[2,:] = np.random.uniform(-np.pi, np.pi, size=(params.M))

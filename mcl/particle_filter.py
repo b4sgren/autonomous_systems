@@ -70,20 +70,38 @@ class ParticleFilter:
         w = w/np.sum(w) #make sure they sum to one
         return Chi, w
 
-    def lowVarianceSampling(self, Chi, w):
-        Chi_bar = np.zeros_like(Chi)
-        M = params.M
-        r = np.random.uniform(0, 1.0/M)
-        c = w.item(0)
-        i = 0
+    # def lowVarianceSampling(self, Chi, w):
+    #     Chi_bar = np.zeros_like(Chi)
+    #     M = params.M
+    #     r = np.random.uniform(0, 1.0/M)
+    #     c = w.item(0)
+    #     i = 0
 
-        for m in range(M): #Can I vectorize this?
-            U = r + (m) * 1.0/M
-            while U > c:
-                i += 1
-                c += w.item(i)
-            Chi_bar[:,m] = Chi[:,i]
-        return Chi_bar
+    #     for m in range(M): #Can I vectorize this?
+    #         U = r + (m) * 1.0/M
+    #         while U > c:
+    #             i += 1
+    #             c += w.item(i)
+    #         Chi_bar[:,m] = Chi[:,i]
+    #     return Chi_bar
+
+    def lowVarianceSampling(self, Chi, w):
+        num_pts = Chi.shape[1]
+        num_pts_inv = 1 / num_pts
+
+        start_comb = num_pts_inv * np.random.rand()
+        wght_cumulative = np.cumsum(w)
+
+        teeth = np.arange(num_pts)
+        comb = start_comb + teeth * num_pts_inv
+
+        diff_mat = wght_cumulative - comb[:,None]
+        diff_truth = diff_mat > 0
+
+        wght_idx = np.argmax(diff_truth, axis=1)
+
+        chi_pts_ret = Chi[:,wght_idx]
+        return chi_pts_ret
 
     def recoverMeanAndCovar(self, Chi, w):
         mu = np.mean(Chi, axis=1)

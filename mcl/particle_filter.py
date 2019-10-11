@@ -28,8 +28,12 @@ class ParticleFilter:
 
     def propagateParticles(self, Chi, vc, wc):
         #Add noise to velocities to separate the particles
-        v = vc + np.sqrt(params.alpha1 * vc**2 + params.alpha2 * wc**2) * np.random.randn(params.M)
-        w = wc + np.sqrt(params.alpha3 * vc**2 + params.alpha4 * wc**2) * np.random.randn(params.M)
+        a1 = params.alpha1 * 10
+        a2 = params.alpha2 * 10
+        a3 = params.alpha3 * 10
+        a4 = params.alpha4 * 10
+        v = vc + np.sqrt(a1 * vc**2 + a2 * wc**2) * np.random.randn(params.M)
+        w = wc + np.sqrt(a3 * vc**2 + a4 * wc**2) * np.random.randn(params.M)
 
         thetas = Chi[2,:]
         st = np.sin(thetas)

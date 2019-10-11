@@ -63,6 +63,7 @@ class ParticleFilter:
         return np.vstack((r, psi))
 
     def getProbability(self, e, Sigma):
+        e[1] = unwrap(e[1])
         p = 1.0
         pr = 1.0/np.sqrt(2*np.pi*Sigma[0,0]) * np.exp(-0.5 * e[0,:]**2/Sigma[0,0])
         p_psi = 1.0/np.sqrt(2 * np.pi * Sigma[1,1]) * np.exp(-0.5 * e[1,:]**2/Sigma[1,1])
@@ -114,6 +115,7 @@ class ParticleFilter:
     def recoverMeanAndCovar(self, Chi, w):
         mu = np.mean(Chi, axis=1)
         temp_x = Chi - mu.reshape((3,1))
+        temp_x[2] = unwrap(temp_x[2])
         Sigma = np.cov(temp_x)
 
         return mu, Sigma

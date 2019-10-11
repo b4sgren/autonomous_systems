@@ -32,8 +32,12 @@ class ParticleFilter:
         a2 = params.alpha2 * 10
         a3 = params.alpha3 * 10
         a4 = params.alpha4 * 10
+        a5 = params.alpha5 * 1
+        a6 = params.alpha6 * 1
+
         v = vc + np.sqrt(a1 * vc**2 + a2 * wc**2) * np.random.randn(params.M)
         w = wc + np.sqrt(a3 * vc**2 + a4 * wc**2) * np.random.randn(params.M)
+        gamma = np.sqrt(a5 * vc**2 + a6 * wc**2) * np.random.randn(params.M)
 
         thetas = Chi[2,:]
         st = np.sin(thetas)
@@ -43,7 +47,7 @@ class ParticleFilter:
 
         A = np.array([-v/w * st + v/w * stw,
                       v/w * ct - v/w * ctw,
-                      w * self.dt])
+                      w * self.dt + gamma * self.dt])
         temp = Chi + A
         temp[2] = unwrap(temp[2])
         return temp

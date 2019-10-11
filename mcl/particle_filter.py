@@ -28,10 +28,10 @@ class ParticleFilter:
 
     def propagateParticles(self, Chi, vc, wc):
         #Add noise to velocities to separate the particles
-        a1 = params.alpha1 * 10
-        a2 = params.alpha2 * 10
-        a3 = params.alpha3 * 10
-        a4 = params.alpha4 * 10
+        a1 = params.alpha1 * 1
+        a2 = params.alpha2 * 1
+        a3 = params.alpha3 * 1
+        a4 = params.alpha4 * 1
         a5 = params.alpha5 * 1
         a6 = params.alpha6 * 1
 
@@ -78,21 +78,6 @@ class ParticleFilter:
             w[i] = self.getProbability(z-z_hat, self.R)
         w = w/np.sum(w) #make sure they sum to one
         return Chi, w
-
-    # def lowVarianceSampling(self, Chi, w):
-    #     Chi_bar = np.zeros_like(Chi)
-    #     M = params.M
-    #     r = np.random.uniform(0, 1.0/M)
-    #     c = w.item(0)
-    #     i = 0
-
-    #     for m in range(M): #Can I vectorize this?
-    #         U = r + (m) * 1.0/M
-    #         while U > c:
-    #             i += 1
-    #             c += w.item(i)
-    #         Chi_bar[:,m] = Chi[:,i]
-    #     return Chi_bar
 
     def lowVarianceSampling(self, Chi, w):
         num_pts = Chi.shape[1]

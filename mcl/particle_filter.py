@@ -95,6 +95,13 @@ class ParticleFilter:
         wght_idx = np.argmax(diff_truth, axis=1)
 
         chi_pts_ret = Chi[:,wght_idx]
+
+        #Combating particle deprivation
+        P = np.cov(Chi)
+        uniq = np.unique(wght_idx).size
+        if uniq/params.M < 0.1:
+            Q = P/((params.M * uniq) ** (1/3)) #3 is size of the state space
+            chi_pts_ret += Q @ np.random.randn(*chi_pts_ret.shape)
         return chi_pts_ret
 
     def recoverMeanAndCovar(self, Chi, w):

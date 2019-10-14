@@ -18,7 +18,7 @@ sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
 
 #number of particles
-M = 1000
+M = 3000
 
 #landmark locations
 gen_lms = False

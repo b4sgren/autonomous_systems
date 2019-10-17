@@ -2,7 +2,7 @@ import numpy as np
 import scipy.io as sio
 
 data = sio.loadmat('state_meas_data.mat')
-x = data['x'] # 3x759 of the true posisions
+x = data['X'] # 3x759 of the true posisions
 z = data['z'] #2x11x759 of the measurements (range and bearing). Nan = no hit
 thk = data['thk'] #1x11 of the angles of the 9 lasers on our sensor between -pi/2 and pi/2. Equally spaced
 

@@ -10,9 +10,10 @@ class CarAnimation:
         self.fig, self.ax = plt.subplots() #creates the subplots
         self.handle = []
 
-        self.line = np.array([[0, 0.5], [0, 0]]) 
+        self.line = np.array([[0, 2.5], [0, 0]]) 
 
-        plt.axis([0, 0, params.l, params.w)
+        self.ax.set_xlim([0, params.l])
+        self.ax.set_ylim([0, params.w])
         self.ax.grid(b=True)
 
     def animateCar(self, state):
@@ -25,7 +26,7 @@ class CarAnimation:
         xy = state[0:2]
 
         if self.flagInit:
-            self.handle.append(patches.CirclePolygon(xy,radius = .5, resolution = 15, fc = 'limegreen', ec = 'black'))
+            self.handle.append(patches.CirclePolygon(xy,radius = 2.5, resolution = 15, fc = 'limegreen', ec = 'black'))
             self.ax.add_patch(self.handle[0])
         else:
             self.handle[0]._xy = xy

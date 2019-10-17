@@ -1,27 +1,21 @@
 import numpy as np
+import scipy.io as sio
+
+data = sio.loadmat('state_meas_data.mat')
+x = data['x'] # 3x759 of the true posisions
+z = data['z'] #2x11x759 of the measurements (range and bearing). Nan = no hit
+thk = data['thk'] #1x11 of the angles of the 9 lasers on our sensor between -pi/2 and pi/2. Equally spaced
 
 #initial position
-x0 = -5
-y0 = -3
-theta0 = np.pi / 2.0
+x0 = x[0,0]
+y0 = x[1,0]
+theta0 = x[2,0]
 
-#velocity motion model noise params
-alpha1 = 0.1
-alpha2 = 0.01
-alpha3 = 0.01
-alpha4 = 0.1
+# inverse range sensor model
+alpha = 1 #m
+beta = np.deg2rad(5) #rad
+z_max = 150 #m
 
-# Sensor noise params
-sigma_r = 0.1 #m
-sigma_theta = 0.05 #rad
-
-#landmark locations
-gen_lms = False 
-num_lms = 1
-if gen_lms:
-    lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))
-else:
-    lms = np.array([[6, -7, 6], [4, 8, -4]])
-
-dt = 0.1
-tf = 20.0
+#grid size
+l = 100 #m
+w = 100 #m

@@ -19,3 +19,7 @@ z_max = 150 #m
 #grid size
 l = 100 #m
 w = 100 #m
+
+# probability values
+p_occ = 0.65 #probability of being occupied if hit detected
+p_emp = 0.35 #probability of being empty if no hit detected

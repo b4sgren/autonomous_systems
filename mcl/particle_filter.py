@@ -114,8 +114,8 @@ class ParticleFilter:
 
     def update(self, mu, Sigma, Chi, z, v, w):
         Chi = self.propagateParticles(Chi, v, w)
-        Chi, w = self.measurement_update(Chi, z)
-        Chi = self.lowVarianceSampling(Chi, w) # I think I'm getting all my weights on too few particles
-        mu, Sigma = self.recoverMeanAndCovar(Chi, w)
+        Chi, wc = self.measurement_update(Chi, z)
+        Chi = self.lowVarianceSampling(Chi, wc) # I think I'm getting all my weights on too few particles
+        mu, Sigma = self.recoverMeanAndCovar(Chi, wc)
 
         return mu, Sigma, Chi

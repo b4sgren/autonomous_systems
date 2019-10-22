@@ -1,50 +1,109 @@
+import sys
+import time
+from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from matplotlib.lines import Line2D
-import car_params as params
+import pyqtgraph as pg
+from PyQt5.QtCore import Qt
 
-class CarAnimation:
-    def __init__(self):
-        self.flagInit = True
-        self.fig, self.ax = plt.subplots() #creates the subplots
-        self.handle = []
 
-        self.line = np.array([[0, 2.5], [0, 0]]) 
+class App(QtGui.QMainWindow):
+    def __init__(self, parent=None):
+        super(App, self).__init__(parent)
 
-        self.ax.set_xlim([0, params.l])
-        self.ax.set_ylim([0, params.w])
-        self.ax.grid(b=True)
+        #### Create Gui Elements ###########
+        self.mainbox = QtGui.QWidget()
+        self.setCentralWidget(self.mainbox)
+        self.mainbox.setLayout(QtGui.QVBoxLayout())
 
-    def animateCar(self, state):
-        self.drawCar(state)
-        self.drawLine(state)
-        self.flagInit = False
+        self.canvas = pg.GraphicsLayoutWidget()
+        self.mainbox.layout().addWidget(self.canvas)
 
-    def drawCar(self, state):
-        theta = state[2]
-        xy = state[0:2]
+        self.label = QtGui.QLabel()
+        self.mainbox.layout().addWidget(self.label)
 
-        if self.flagInit:
-            self.handle.append(patches.CirclePolygon(xy,radius = 2.5, resolution = 15, fc = 'limegreen', ec = 'black'))
-            self.ax.add_patch(self.handle[0])
-        else:
-            self.handle[0]._xy = xy
+        self.view = self.canvas.addViewBox()
+        self.view.setAspectLocked(True)
+        self.view.setRange(QtCore.QRectF(0,0, 100, 100))
 
-    def drawLine(self, state):
-        theta = state[2]
-        x = state[0]
-        y = state[1]
+        #  line plot
+        # self.otherplot = self.canvas.addPlot()
+        # self.h2 = self.otherplot.plot(pen='y')
 
-        #rotate car before translating
-        R = np.array([[np.cos(theta), -np.sin(theta)],
-                     [np.sin(theta), np.cos(theta)]], np.float)
-        xy = R @ self.line
-        xy = xy + np.array([[x, x], [y, y]])
+        #### Set Data  #####################
+        self.idx = 10
+        self.x = np.linspace(0,50., num=100)
+        self.X,self.Y = np.meshgrid(self.x,self.x)
 
-        if self.flagInit:
-            self.handle.append(Line2D(xy[0,:], xy[1,:], color='k'))
-            self.ax.add_line(self.handle[1])
-        else:
-            self.handle[1].set_xdata(xy[0,:])
-            self.handle[1].set_ydata(xy[1,:])
+        #  image plot
+        self.img = pg.ImageItem(border='w')
+        self.turtlebot = TurtleBotItem(self.X[:,self.idx], 1.5) 
+        self.view.addItem(self.img)
+        self.view.addItem(self.turtlebot)
+
+        self.counter = 0
+        self.fps = 0.
+        self.lastupdate = time.time()
+
+        #### Start  #####################
+        self._update()
+
+    def _update(self):
+
+        self.data = np.sin(self.X/3.+self.counter/9.)*np.cos(self.Y/3.+self.counter/9.)
+        # self.ydata = np.sin(self.x/3.+ self.counter/9.)
+        
+        self.turtlebot.setPose([self.counter%100, 1.5, np.pi/2])
+
+        self.img.setImage(self.data) #self.data will be the map
+        # self.h2.setData(self.ydata)
+
+        now = time.time()
+        dt = (now-self.lastupdate)
+        if dt <= 0:
+            dt = 0.000000000001
+        fps2 = 1.0 / dt
+        self.lastupdate = now
+        self.fps = self.fps * 0.9 + fps2 * 0.1
+        tx = 'Mean Frame Rate:  {fps:.3f} FPS'.format(fps=self.fps )
+        self.label.setText(tx)
+        QtCore.QTimer.singleShot(1, self._update)
+        self.counter += 1
+
+class TurtleBotItem(pg.GraphicsObject):
+    def __init__(self, pose, radius):
+        pg.GraphicsObject.__init__(self)
+        self.pose = QtCore.QPointF(*pose[:2])
+        self.R = radius 
+        pt = pose[:2] + np.array([np.cos(pose[2]), np.sin(pose[2])]) * self.R
+        self.pt = QtCore.QPointF(*(pose[:2] + pt))
+        self.generatePicture()
+
+    def setPose(self, pose):
+        self.pose.setX(pose[0])
+        self.pose.setY(pose[1])
+        pt = pose[:2] + np.array([np.cos(pose[2]), np.sin(pose[2])]) * self.R
+        self.pt.setX(pt[0])
+        self.pt.setY(pt[1])
+        self.generatePicture()
+
+    def generatePicture(self):
+        self.picture = QtGui.QPicture()
+        p = QtGui.QPainter(self.picture)
+        p.setPen(QtGui.QPen(Qt.black, 0.5, Qt.SolidLine))
+        p.setBrush(QtGui.QBrush(Qt.yellow, Qt.SolidPattern))
+        p.drawEllipse(self.pose, self.R, self.R)
+        p.drawLine(self.pose, self.pt)
+        p.end()
+
+    def paint(self, p, *args):
+        p.drawPicture(0, 0, self.picture)
+
+    def boundingRect(self):
+        return QtCore.QRectF(self.picture.boundingRect())
+
+if __name__ == '__main__':
+
+    app = QtGui.QApplication(sys.argv)
+    thisapp = App()
+    thisapp.show()
+    sys.exit(app.exec_())

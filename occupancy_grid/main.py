@@ -1,19 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from car_animation import CarAnimation
+from car_animation2 import App
+from pyqtgraph.Qt import QtGui
 import car_params as params
+import sys
 
 if __name__ == "__main__":
-    Car = CarAnimation()
+    app = QtGui.QApplication(sys.argv)
+    Car = App()
+    Car.show()
 
     x = params.x
     z = params.z
     thk = params.thk
 
     for i in range(x.shape[1]):
-        Car.animateCar(x[:,i])
+        # Car.animateCar(x[:,i])
         plt.pause(0.002)
 
-    plt.show()
     print("Finished")
-    plt.close()
+    sys.exit(app.exec_())

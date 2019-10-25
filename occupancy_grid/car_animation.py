@@ -50,6 +50,9 @@ class App(QtGui.QMainWindow):
         self._update()
 
     def _update(self):
+        if self.counter < params.x.shape[1]:
+            self.grid.updateMap(params.x[:,self.counter], params.z[:,:,self.counter])
+            self.counter += 1
 
         self.data = self.grid.map * 255.0       
         self.turtlebot.setPose(params.x[:,self.counter])
@@ -65,9 +68,6 @@ class App(QtGui.QMainWindow):
         tx = 'Mean Frame Rate:  {fps:.3f} FPS'.format(fps=self.fps )
         self.label.setText(tx)
         QtCore.QTimer.singleShot(1, self._update)
-        self.counter += 1
-        if self.counter  == params.x.shape[1]-1:
-            self.counter = 0
 
 class TurtleBotItem(pg.GraphicsObject):
     def __init__(self, pose, radius):

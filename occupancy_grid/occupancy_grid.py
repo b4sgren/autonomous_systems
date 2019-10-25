@@ -10,4 +10,10 @@ def wrap(phi):
 
 class OccupancyGrid:
     def __init__(self):
-        self.map = np.ones((params.l, params.w))  # maybe use np.meshgrid?
+        self.map = np.ones((params.l, params.w)) * 0.5 
+    
+    def updateMap(self, pose, z):
+        debug = 1
+
+    def inverseRangeSensorModel(self, pose, z):
+        debug = 1 

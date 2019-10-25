@@ -5,6 +5,7 @@ import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
 import car_params as params
+from occupancy_grid import OccupancyGrid
 
 
 class App(QtGui.QMainWindow):
@@ -40,15 +41,17 @@ class App(QtGui.QMainWindow):
         self.counter = 0
         self.fps = 0.
         self.lastupdate = time.time()
-        self.data = np.ones((params.l, params.w)) * 0.5 * 255
+
+        # Variables used for creating and visualizing the map
+        self.grid = OccupancyGrid()
+        self.data = self.grid.map * 255
 
         #### Start  #####################
         self._update()
 
     def _update(self):
 
-        # self.data = np.sin(self.X/3.+self.counter/9.)*np.cos(self.Y/3.+self.counter/9.)
-        
+        self.data = self.grid.map * 255.0       
         self.turtlebot.setPose(params.x[:,self.counter])
         self.img.setImage(self.data) #self.data will be the map
 

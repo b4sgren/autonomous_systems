@@ -22,15 +22,15 @@ class OccupancyGrid:
         r = np.sqrt(dx**2 + dy**2) # matrix of range to each grid cell
         phi = np.arctan2(dy, dx) - pose[2] #matrix of bearing to each grid cell
         phi = wrap(phi)
-        mat_thk = np.ones((params.l, params.w, params.thk.size)) * params.thk[None,:,None] #Issue here. Need this to be array with 11 pages with 1 page for each angle of range finder
-        dphi = wrap(phi - mat_thk) 
+        mat_thk = np.ones((params.l, params.w, params.thk.size)) * params.thk[None,None,:] 
+        dphi = wrap(phi - mat_thk)  #Issues with this subtraction. Want to subtrach phi from every page in mat_thk
         k = np.argmin(dphi, axis=1) # matrix indicating which beam of range finder would hit this cell
 
         L = np.zeros_like(self.map) #matrix of Log probabilities
         dphi_k = wrap(phi - params.thk[k])
-        L += (r > np.min(params.z_max, z[k,0] + params.alpha/2.0) or np.abs(dphi_k) > params.beta/2.0).astype(int) * self.l0
-        L += (z[k,0] < params.z_max and np.abs(r - z[k,0]) < params.alpha/2.0).astype(int) * np.log(params.p_oc/(1-params.p_occ))
-        L += (r <= z[k,0]).astype(int) * np.log(params.p_emp/(1 - params.p_emp))
+        L += (r > np.min(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(dphi_k) > params.beta/2.0).astype(int) * self.l0
+        L += (z[k,0] < params.z_max and np.abs(r - z[0,k]) < params.alpha/2.0).astype(int) * np.log(params.p_oc/(1-params.p_occ))
+        L += (r <= z[0,k]).astype(int) * np.log(params.p_emp/(1 - params.p_emp))
 
         L_map = np.log(self.map/(1-self.map))
         L_map += L - self.l0

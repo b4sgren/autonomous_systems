@@ -4,6 +4,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
+import car_params as params
 
 
 class App(QtGui.QMainWindow):
@@ -25,10 +26,6 @@ class App(QtGui.QMainWindow):
         self.view.setAspectLocked(True)
         self.view.setRange(QtCore.QRectF(0,0, 100, 100))
 
-        #  line plot
-        # self.otherplot = self.canvas.addPlot()
-        # self.h2 = self.otherplot.plot(pen='y')
-
         #### Set Data  #####################
         self.idx = 10
         self.x = np.linspace(0,50., num=100)
@@ -43,19 +40,17 @@ class App(QtGui.QMainWindow):
         self.counter = 0
         self.fps = 0.
         self.lastupdate = time.time()
+        self.data = np.ones((params.l, params.w)) * 0.5 * 255
 
         #### Start  #####################
         self._update()
 
     def _update(self):
 
-        self.data = np.sin(self.X/3.+self.counter/9.)*np.cos(self.Y/3.+self.counter/9.)
-        # self.ydata = np.sin(self.x/3.+ self.counter/9.)
+        # self.data = np.sin(self.X/3.+self.counter/9.)*np.cos(self.Y/3.+self.counter/9.)
         
-        self.turtlebot.setPose([self.counter%100, 1.5, np.pi/2])
-
+        self.turtlebot.setPose(params.x[:,self.counter])
         self.img.setImage(self.data) #self.data will be the map
-        # self.h2.setData(self.ydata)
 
         now = time.time()
         dt = (now-self.lastupdate)
@@ -68,6 +63,8 @@ class App(QtGui.QMainWindow):
         self.label.setText(tx)
         QtCore.QTimer.singleShot(1, self._update)
         self.counter += 1
+        if self.counter  == params.x.shape[1]-1:
+            self.counter = 0
 
 class TurtleBotItem(pg.GraphicsObject):
     def __init__(self, pose, radius):

@@ -22,8 +22,8 @@ class OccupancyGrid:
         r = np.sqrt(dx**2 + dy**2) # matrix of range to each grid cell
         phi = np.arctan2(dy, dx) - pose[2] #matrix of bearing to each grid cell
         phi = wrap(phi)
-        mat_thk = np.ones((params.l, params.w, params.thk.size)) * params.thk[None,None,:] 
-        dphi = wrap(phi - mat_thk)  #Issues with this subtraction. Want to subtrach phi from every page in mat_thk
+        mat_thk = np.ones((params.l, params.w, params.thk.size)) * params.thk[None,None,:] #want mat_thk to be 11x100x100 not 100x100x11
+        dphi = wrap(-(mat_thk - phi))  #Issues with this subtraction. Want to subtrach phi from every page in mat_thk
         k = np.argmin(dphi, axis=1) # matrix indicating which beam of range finder would hit this cell
 
         L = np.zeros_like(self.map) #matrix of Log probabilities

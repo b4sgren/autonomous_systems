@@ -56,7 +56,6 @@ class App(QtGui.QMainWindow):
             self.counter += 1
 
         self.data = self.grid.map * 255.0       
-        # self.turtlebot.setPose(params.x[:,self.counter])
         self.img.setImage(self.data) #self.data will be the map
 
         now = time.time()

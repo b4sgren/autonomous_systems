@@ -27,15 +27,18 @@ class OccupancyGrid:
         k = np.argmin(dphi, axis=0) # matrix indicating which beam of range finder would hit this cell
 
         L = np.zeros_like(self.map) #matrix of Log probabilities
-        dphi_k = wrap(phi - params.thk[k])
+        dphi_k = wrap(phi - z[1,k])
         L1 = (r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0))
         L2 = (np.abs(dphi_k) > params.beta/2.0)
+        temp1 = np.logical_or(L1, L2).astype(int) * self.l0
         L += np.logical_or(L1, L2).astype(int) * self.l0
         
         L3 = (z[0,k] < params.z_max)
         L4 = (np.abs(r - z[0,k]) < params.alpha/2.0)
+        temp2 = np.logical_and(L3, L4).astype(int) * np.log(params.p_occ/(1-params.p_occ))
         L += np.logical_and(L3, L4).astype(int) * np.log(params.p_occ/(1-params.p_occ))
 
+        temp3 = (r <= z[0,k]).astype(int) * np.log(params.p_emp/(1 - params.p_emp))
         L += (r <= z[0,k]).astype(int) * np.log(params.p_emp/(1 - params.p_emp))
 
         L_map = np.log(self.map/(1-self.map))

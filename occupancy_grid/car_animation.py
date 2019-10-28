@@ -52,10 +52,11 @@ class App(QtGui.QMainWindow):
     def _update(self):
         if self.counter < params.x.shape[1]:
             self.grid.updateMap(params.x[:,self.counter], params.z[:,:,self.counter])
+            self.turtlebot.setPose(params.x[:,self.counter])
             self.counter += 1
 
         self.data = self.grid.map * 255.0       
-        self.turtlebot.setPose(params.x[:,self.counter])
+        # self.turtlebot.setPose(params.x[:,self.counter])
         self.img.setImage(self.data) #self.data will be the map
 
         now = time.time()

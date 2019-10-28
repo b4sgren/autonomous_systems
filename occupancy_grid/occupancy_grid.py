@@ -53,4 +53,4 @@ class OccupancyGrid:
 
         L_map = np.log(self.map/(1-self.map))
         L_map += L - self.l0
-        self.map = 1 - 1/(1+np.exp(L_map))
+        self.map = 1/(1+np.exp(L_map))

@@ -30,7 +30,7 @@ class OccupancyGrid:
         for i in range(params.l):
             for j in range(params.w):
                 t = k[i,j]
-                if r[i,j] > np.minimum(params.z_max, z[0,t] + params.alpha/2.0) or np.abs(phi[i,j] - z[1,t]) < params.beta/2.0:
+                if r[i,j] > np.minimum(params.z_max, z[0,t] + params.alpha/2.0) or np.abs(wrap(phi[i,j] - z[1,t])) < params.beta/2.0:
                     L[i,j] = self.l0 
                 elif z[0,t] < params.z_max and np.abs(r[i,j] - z[0,t]) < params.alpha/2.0:
                     L[i,j] = np.log(params.p_occ/(1 - params.p_occ))
@@ -53,4 +53,4 @@ class OccupancyGrid:
 
         L_map = np.log(self.map/(1-self.map))
         L_map += L - self.l0
-        self.map = 1/(1+np.exp(L_map))
+        self.map = 1/(1+np.exp(L_map)) #no 1 - so the color scheme is inverted

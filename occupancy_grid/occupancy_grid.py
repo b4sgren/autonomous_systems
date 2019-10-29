@@ -9,8 +9,8 @@ class OccupancyGrid:
     def __init__(self):
         self.map = np.ones((params.l, params.w)) * 0.5 
 
-        xi = np.arange(0, 100, 1) #+ 0.5
-        yi = np.arange(0, 100, 1) #+ 0.5
+        xi = np.arange(0, 100, 1) + 1
+        yi = np.arange(0, 100, 1) + 1
 
         self.Xi, self.Yi = np.meshgrid(xi, yi) # center of mass of each grid in the map
         self.l0 = np.log(0.5/0.5) #should be 0 for our case

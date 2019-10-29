@@ -49,24 +49,27 @@ class OccupancyGrid:
         phi = np.arctan2(dy, dx) - pose[2] #matrix of bearing to each grid cell
         phi = wrap(phi)
         mat_thk = np.ones((params.thk.size, self.x_size, self.y_size)) * params.thk[:,None,None] 
-        dphi = phi - mat_thk  
+        dphi = np.abs(phi - mat_thk)  
         k = np.argmin(dphi, axis=0) # matrix indicating which beam of range finder would hit this cell
 
-        L = np.zeros_like(self.map) #matrix of Log probabilities
-        dphi_k = wrap(phi - z[1,k])
+        dphi_k = phi - z[1,k]
         L1 = (r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0))
         L2 = (np.abs(dphi_k) > params.beta/2.0)
-        temp1 = np.logical_or(L1, L2).astype(int) * self.l0
-        L += np.logical_or(L1, L2).astype(int) * self.l0
+        temp1 = np.logical_or(L1, L2)
+        # L += np.logical_or(L1, L2).astype(int) * self.l0
         
         L3 = (z[0,k] < params.z_max)
         L4 = (np.abs(r - z[0,k]) < params.alpha/2.0)
-        temp2 = np.logical_and(L3, L4).astype(int) * self.l_occ
-        L += np.logical_and(L3, L4).astype(int) * self.l_occ
+        temp2 = np.logical_and(L3, L4)#.astype(int) * self.l_occ
+        temp2 = np.logical_and(temp2, np.logical_not(temp1))
+        # L += np.logical_and(L3, L4).astype(int) * self.l_occ
 
-        temp3 = (r <= z[0,k]).astype(int) * self.l_emp
-        L += (r <= z[0,k]).astype(int) * self.l_emp
+        temp3 = (r <= z[0,k])#.astype(int) * self.l_emp
+        temp3 = np.logical_and(temp3, np.logical_not(temp2))
+        temp3 = np.logical_and(temp3, np.logical_not(temp1))
+        # L += (r <= z[0,k]).astype(int) * self.l_emp
+        L = temp1.astype(int) * self.l0 + temp2.astype(int) * self.l_occ + temp3.astype(int) * self.l_emp
 
         L_map = np.log(self.map/(1-self.map))
-        L_map += L - self.l0
+        L_map += L.T - self.l0
         self.map = 1 - 1/(1+np.exp(L_map)) 

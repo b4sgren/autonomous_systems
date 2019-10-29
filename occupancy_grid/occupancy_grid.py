@@ -14,6 +14,8 @@ class OccupancyGrid:
 
         self.Xi, self.Yi = np.meshgrid(xi, yi) # center of mass of each grid in the map
         self.l0 = np.log(0.5/0.5) #should be 0 for our case
+        self.l_occ = np.log(params.p_occ/(1 - params.p_occ))
+        self.l_emp = np.log(params.p_emp/(1 - params.p_emp))
     
     def updateMap(self, pose, z):
         L = np.zeros_like(self.map)
@@ -21,6 +23,9 @@ class OccupancyGrid:
             for j in range(params.w):
                 dx = self.Xi[i,j] - pose[0]
                 dy = self.Yi[i,j] - pose[1]
+
+                if i == 10 and j == 99:
+                    debug = 1
 
                 r = np.sqrt(dx**2 + dy**2)
                 phi = np.arctan2(dy,dx) - pose[2]
@@ -30,9 +35,9 @@ class OccupancyGrid:
                 if r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(phi - (pose[2] + z[1,k])) > params.beta/2.0:
                     L[i,j] = self.l0
                 elif z[0,k] < params.z_max and np.abs(r - z[0,k]) < params.alpha/2.0:
-                    L[i,j] = np.log(params.p_occ/(1 - params.p_occ))
+                    L[i,j] = self.l_occ
                 elif r < z[0,k]:
-                    L[i,j] = np.log(params.p_emp/(1 - params.p_emp))
+                    L[i,j] = self.l_emp
         L_map = np.log(self.map/(1 - self.map))
         L_map += L - self.l0
         self.map = 1.0 / (1 + np.exp(L_map))

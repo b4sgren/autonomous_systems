@@ -7,10 +7,10 @@ import car_params as params
 class CarAnimation:
     def __init__(self):
         self.flagInit = True
-        self.fig, self.ax = plt.subplots() #creates the subplots
+        self.fig, self.ax = plt.subplots()
         self.handle = []
 
-        self.line = np.array([[0, 0.5], [0, 0]]) #car initially facing north
+        self.line = np.array([[0, 0.5], [0, 0]]) 
         self.dr_x = []
         self.dr_y = []
         self.state_x = []
@@ -19,7 +19,7 @@ class CarAnimation:
         self.mu_y = []
 
         self.ax.scatter(params.lms[0,:], params.lms[1,:], marker='x', color='k')
-        plt.axis([-10, 10, -10, 10])
+        plt.axis([-15, 15, -15, 15])
         self.ax.grid(b=True)
 
     def animateCar(self, state, mu, dr):

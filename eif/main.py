@@ -6,23 +6,6 @@ from eif import EIF
 from eif import unwrap
 
 
-def getMeasurements(state):
-    z = np.zeros_like(params.lms, dtype=float)
-
-    for i in range(z.shape[1]):
-        lm = params.lms[:,i]
-        ds = lm - state[0:2]
-
-        r = np.sqrt(np.sum(ds**2))
-        theta = np.arctan2(ds[1], ds[0]) - state[2]
-        # theta = unwrap(theta) #not sure if this should be here or down a few lines
-
-        z[0,i] = r + np.random.normal(0, params.sigma_r)
-        z[1,i] = theta + np.random.normal(0, params.sigma_theta)
-        z[1,i] = unwrap(z[1,i])
-
-    return z
-
 if __name__ == "__main__":
     Car = CarAnimation()
     eif = EIF(params.dt)
@@ -38,7 +21,7 @@ if __name__ == "__main__":
     x0 = params.x0
     y0 = params.y0
     phi0 = params.theta0
-    state = np.array([x0, y0, phi0])
+    state = params.truth[:,0]
     dead_reckon = np.array([x0, y0, phi0])
     mu = np.array([x0, y0, phi0])
     Sigma = np.eye(3)

@@ -27,7 +27,7 @@ class OccupancyGrid:
 
                 k = np.argmin(np.abs(phi - (pose[2] - params.thk)))
 
-                if r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(phi - z[1,k]) > params.beta/2.0:
+                if r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(phi - (pose[2] + z[1,k])) > params.beta/2.0:
                     L[i,j] = self.l0
                 elif z[0,k] < params.z_max and np.abs(r - z[0,k]) < params.alpha/2.0:
                     L[i,j] = np.log(params.p_occ/(1 - params.p_occ))

@@ -79,11 +79,11 @@ class TurtleBotItem(pg.GraphicsObject):
         self.generatePicture()
 
     def setPose(self, pose):
-        self.pose.setX(pose[0])
-        self.pose.setY(pose[1])
+        self.pose.setX(pose[1]) #I switched the 1 and 0 in this function. Need to check to see if this was the right thing to do
+        self.pose.setY(pose[0])
         pt = pose[:2] + np.array([np.cos(pose[2]), np.sin(pose[2])]) * self.R
-        self.pt.setX(pt[0])
-        self.pt.setY(pt[1])
+        self.pt.setX(pt[1])
+        self.pt.setY(pt[0])
         self.generatePicture()
 
     def generatePicture(self):

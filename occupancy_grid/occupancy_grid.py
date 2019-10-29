@@ -28,11 +28,11 @@ class OccupancyGrid:
                     debug = 1
 
                 r = np.sqrt(dx**2 + dy**2)
-                phi = np.arctan2(dy,dx) - pose[2]
+                phi = wrap(np.arctan2(dy,dx) - pose[2])
 
-                k = np.argmin(np.abs(phi - (pose[2] - params.thk)))
+                k = np.argmin(np.abs(phi - params.thk))
 
-                if r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(phi - (pose[2] + z[1,k])) > params.beta/2.0:
+                if r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(phi - z[1,k]) > params.beta/2.0:
                     L[i,j] = self.l0
                 elif z[0,k] < params.z_max and np.abs(r - z[0,k]) < params.alpha/2.0:
                     L[i,j] = self.l_occ

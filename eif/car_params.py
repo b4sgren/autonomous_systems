@@ -1,28 +1,29 @@
 import numpy as np
 import scipy.io as sio
 
+data = sio.loadmat('midterm_data.mat')
+truth = data['X_tr']
+lms = data['m']
+v = data['v']
+vc = data['v_c']
+w = data['om']
+wc = data['w_c']
+t = data['t']
+z_r = data['range_tr']
+z_phi = data['bearing_tr']
+
 #initial position
-x0 = -5
-y0 = -3
+x0 = -5.0
+y0 = 0.0
 theta0 = np.pi / 2.0
 
 #velocity motion model noise params
-alpha1 = 0.1
-alpha2 = 0.01
-alpha3 = 0.01
-alpha4 = 0.1
+sigma_v = 0.15 # m/s
+sigma_w = 0.1 # rad/s
 
 # Sensor noise params
-sigma_r = 0.1 #m
-sigma_theta = 0.05 #rad
+sigma_r = 0.2 #m
+sigma_theta = 0.1 #rad
 
-#landmark locations
-gen_lms = False 
-num_lms = 1
-if gen_lms:
-    lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))
-else:
-    lms = np.array([[6, -7, 6], [4, 8, -4]])
-
-dt = 0.1
-tf = 20.0
+dt = 0.1 #s
+tf = 30.0 #s

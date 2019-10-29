@@ -14,13 +14,9 @@ class EIF:
     def propagateState(self, state, v, w):
         theta = state[2]
         st = np.sin(theta)
-        stw = np.sin(theta + w * self.dt)
         ct = np.cos(theta)
-        ctw = np.cos(theta + w * self.dt)
 
-        A = np.array([-v/w * st + v/w * stw,
-                    v/w * ct - v/w * ctw,
-                    w * self.dt])
+        A = np.array([v * ct, v * st, w]) * dt
         temp = state + A
         temp[2] = unwrap(temp[2])
         return temp
@@ -60,22 +56,19 @@ class EIF:
         theta = mu[2]
         ct = np.cos(theta)
         st = np.sin(theta)
-        cwt = np.cos(theta + w * self.dt)
-        swt = np.sin(theta + w * self.dt)
 
         #Jacobian of motion model wrt the states
-        G = np.eye(3)
-        G[0,2] = -v/w * ct + v/w * cwt
-        G[1,2] = -v/w * st + v/w * swt
+        G = np.eye(3) #wrt the states is just I i believe
+        G[0,2] = -v * st * self.dt
+        G[0,3] = v * ct * self.dt
 
         #Jacobian of motion model wrt inputs
-        V = np.array([[(-st + swt)/w, v * (st - swt)/w**2 + v * cwt * self.dt/w],
-                      [(ct - cwt)/w, -v * (ct - cwt)/w**2 + v * swt * self.dt/w],
+        V = np.array([[ct * self.dt, 0.0],
+                      [st * self.dt, 0.0],
                       [0, self.dt]])
 
         #Process noise in motion model
-        M = np.diag([params.alpha1 * v**2 + params.alpha2 * w**2,
-                     params.alpha3 * v**2 + params.alpha4 * w**2])
+        M = np.diag([params.sigma_v**2, params.sigma_w**2])
 
         #Measurement Noise
         Q = np.diag([params.sigma_r**2, params.sigma_theta**2])

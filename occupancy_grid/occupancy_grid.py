@@ -7,10 +7,12 @@ def wrap(phi):
     
 class OccupancyGrid:
     def __init__(self):
-        self.map = np.ones((params.l, params.w)) * 0.5 
+        self.x_size = params.l + 2
+        self.y_size = params.w + 2
+        self.map = np.ones((self.x_size, self.y_size)) * 0.5 
 
-        xi = np.arange(0, 100, 1) + 1
-        yi = np.arange(0, 100, 1) + 1
+        xi = np.arange(0, self.x_size, 1) #+ 1
+        yi = np.arange(0, self.y_size, 1) #+ 1
 
         self.Xi, self.Yi = np.meshgrid(xi, yi) # center of mass of each grid in the map
         self.l0 = np.log(0.5/0.5) #should be 0 for our case
@@ -19,8 +21,8 @@ class OccupancyGrid:
     
     def updateMap(self, pose, z):
         L = np.zeros_like(self.map)
-        for i in range(params.l):
-            for j in range(params.w):
+        for i in range(self.x_size):
+            for j in range(self.y_size):
                 dx = self.Xi[i,j] - pose[0]
                 dy = self.Yi[i,j] - pose[1]
 

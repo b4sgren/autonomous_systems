@@ -11,8 +11,8 @@ class OccupancyGrid:
         self.y_size = params.w + 2
         self.map = np.ones((self.x_size, self.y_size)) * 0.5 
 
-        xi = np.arange(0, self.x_size, 1) #+ 1
-        yi = np.arange(0, self.y_size, 1) #+ 1
+        xi = np.arange(0, self.x_size, 1) 
+        yi = np.arange(0, self.y_size, 1)
 
         self.Xi, self.Yi = np.meshgrid(xi, yi) # center of mass of each grid in the map
         self.l0 = np.log(0.5/0.5) #should be 0 for our case
@@ -56,18 +56,16 @@ class OccupancyGrid:
         L1 = (r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0))
         L2 = (np.abs(dphi_k) > params.beta/2.0)
         temp1 = np.logical_or(L1, L2)
-        # L += np.logical_or(L1, L2).astype(int) * self.l0
         
         L3 = (z[0,k] < params.z_max)
         L4 = (np.abs(r - z[0,k]) < params.alpha/2.0)
         temp2 = np.logical_and(L3, L4)#.astype(int) * self.l_occ
         temp2 = np.logical_and(temp2, np.logical_not(temp1))
-        # L += np.logical_and(L3, L4).astype(int) * self.l_occ
 
         temp3 = (r <= z[0,k])#.astype(int) * self.l_emp
         temp3 = np.logical_and(temp3, np.logical_not(temp2))
         temp3 = np.logical_and(temp3, np.logical_not(temp1))
-        # L += (r <= z[0,k]).astype(int) * self.l_emp
+
         L = temp1.astype(int) * self.l0 + temp2.astype(int) * self.l_occ + temp3.astype(int) * self.l_emp
 
         L_map = np.log(self.map/(1-self.map))

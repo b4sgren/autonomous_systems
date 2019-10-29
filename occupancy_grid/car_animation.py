@@ -56,8 +56,7 @@ class App(QtGui.QMainWindow):
             self.counter += 1
 
         self.data = self.grid.map * 255.0       
-        self.img.setImage(self.data) #self.data will be the map
-        # input("Press enter to continue")
+        self.img.setImage(self.data) 
 
         now = time.time()
         dt = (now-self.lastupdate)
@@ -80,7 +79,7 @@ class TurtleBotItem(pg.GraphicsObject):
         self.generatePicture()
 
     def setPose(self, pose):
-        self.pose.setX(pose[0]) #I switched the 1 and 0 in this function. Need to check to see if this was the right thing to do
+        self.pose.setX(pose[0]) 
         self.pose.setY(pose[1])
         pt = pose[:2] + np.array([np.cos(pose[2]), np.sin(pose[2])]) * self.R
         self.pt.setX(pt[0])

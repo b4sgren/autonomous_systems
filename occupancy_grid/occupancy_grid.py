@@ -9,13 +9,15 @@ class OccupancyGrid:
     def __init__(self):
         self.map = np.ones((params.l, params.w)) * 0.5 
 
-        xi = np.arange(0, 100, 1)
+        xi = np.arange(0, 100, 1) 
         yi = np.arange(0, 100, 1)
 
         self.Xi, self.Yi = np.meshgrid(xi, yi) # center of mass of each grid in the map
         self.l0 = np.log(0.5/0.5) #should be 0 for our case
-        self.l_occ = np.log(params.p_occ/(1 - params.p_occ))
-        self.l_emp = np.log(params.p_emp/(1 - params.p_emp))
+        # self.l_occ = np.log(params.p_occ/(1 - params.p_occ))
+        # self.l_emp = np.log(params.p_emp/(1 - params.p_emp))
+        self.l_occ = np.log(params.p_emp/(1 - params.p_emp))
+        self.l_emp = np.log(params.p_occ/(1 - params.p_occ))
     
     def updateMap(self, pose, z):
         L = np.zeros_like(self.map)
@@ -24,7 +26,17 @@ class OccupancyGrid:
                 dx = self.Xi[i,j] - pose[0]
                 dy = self.Yi[i,j] - pose[1]
 
-                if i == 10 and j == 99:
+                if i == 5 and j == 0:
+                    debug = 1
+                elif i == 5 and j == 50:
+                    debug = 1
+                elif i == 50 and j == 25:
+                    debug = 1
+                elif i == 70 and j == 25:
+                    debug = 1
+                elif i == 50 and j == 50:
+                    debug = 1
+                elif i == 1 and j == 4:
                     debug = 1
 
                 r = np.sqrt(dx**2 + dy**2)
@@ -33,14 +45,15 @@ class OccupancyGrid:
                 k = np.argmin(np.abs(phi - params.thk))
 
                 if r > np.minimum(params.z_max, z[0,k] + params.alpha/2.0) or np.abs(phi - z[1,k]) > params.beta/2.0:
-                    L[i,j] = self.l0
+                    L[j,i] = self.l0 # should this be j,i or i,j
                 elif z[0,k] < params.z_max and np.abs(r - z[0,k]) < params.alpha/2.0:
-                    L[i,j] = self.l_occ
+                    L[j,i] = self.l_occ
                 elif r < z[0,k]:
-                    L[i,j] = self.l_emp
+                    L[j,i] = self.l_emp
         L_map = np.log(self.map/(1 - self.map))
         L_map += L - self.l0
-        self.map = 1.0 / (1 + np.exp(L_map))
+        self.map = 1 - 1.0 / (1 + np.exp(L_map))
+        debug = 1
 
         # dx = self.Xi - pose[0]
         # dy = self.Yi - pose[1]

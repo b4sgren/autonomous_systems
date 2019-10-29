@@ -57,6 +57,7 @@ class App(QtGui.QMainWindow):
 
         self.data = self.grid.map * 255.0       
         self.img.setImage(self.data) #self.data will be the map
+        # input("Press enter to continue")
 
         now = time.time()
         dt = (now-self.lastupdate)

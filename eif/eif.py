@@ -3,25 +3,26 @@ import car_params as params
 
 def unwrap(angle):
     """wrap an angle in rads, -pi <= theta < pi"""
-    angle -= 2*np.pi * np.floor((angle + np.pi) * inv_2pi)
+    angle -= 2*np.pi * np.floor((angle + np.pi) * 0.5/np.pi)
     return angle
 
 class EIF:
     def __init__(self, t):
         self.dt = t
-        self.Sigma = np.eye(3)
+        self.Omega = np.eye(3)
+        self.covar = np.linalg.inv(self.Omega)
 
     def propagateState(self, state, v, w):
         theta = state[2]
         st = np.sin(theta)
         ct = np.cos(theta)
 
-        A = np.array([v * ct, v * st, w]) * dt
+        A = np.array([v * ct, v * st, w]) * self.dt
         temp = state + A
         temp[2] = unwrap(temp[2])
         return temp
 
-    def update(self, mu, z, v, w):
+    def update(self, xi, z, v, w):
         G, V, M, Q = self.getJacobians(mu, v, w)
 
         mu_bar = self.propagateState(mu, v, w)

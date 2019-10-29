@@ -4,11 +4,11 @@ import scipy.io as sio
 data = sio.loadmat('midterm_data.mat')
 truth = data['X_tr']
 lms = data['m']
-v = data['v']
-vc = data['v_c']
-w = data['om']
-wc = data['w_c']
-t = data['t']
+v = data['v'].flatten()
+vc = data['v_c'].flatten()
+w = data['om'].flatten()
+wc = data['om_c'].flatten()
+t = data['t'].flatten()
 z_r = data['range_tr']
 z_phi = data['bearing_tr']
 

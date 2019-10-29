@@ -1,8 +1,9 @@
 import numpy as np
 import scipy.io as sio
 
-data = sio.loadmat('state_meas_data.mat')
-# data = sio.loadmat('test_data.mat')
+# data = sio.loadmat('state_meas_data.mat')
+data = sio.loadmat('test_data.mat')
+
 x = data['X'] # 3x759 of the true posisions
 z = data['z'] #2x11x759 of the measurements (range and bearing). Nan = no hit
 # i = np.argwhere(np.isnan(z))

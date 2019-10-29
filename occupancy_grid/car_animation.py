@@ -51,7 +51,7 @@ class App(QtGui.QMainWindow):
 
     def _update(self):
         if self.counter < params.x.shape[1]:
-            self.grid.updateMap(params.x[:,self.counter], params.z[:,:,self.counter])
+            self.grid.updateMap2(params.x[:,self.counter], params.z[:,:,self.counter])
             self.turtlebot.setPose(params.x[:,self.counter])
             self.counter += 1
 

@@ -44,7 +44,6 @@ class EIF:
             phi = unwrap(phi)
             z_hat = np.array([r, phi])
 
-            # I believe that H stays the same
             H = np.array([[-(lm[0] - mu_bar[0])/r, -(lm[1] - mu_bar[1])/r, 0],
                           [(lm[1] - mu_bar[1])/r**2, -(lm[0] - mu_bar[0])/r**2, -1]])
 

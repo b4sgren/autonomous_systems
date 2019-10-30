@@ -9,8 +9,8 @@ vc = data['v_c'].flatten()
 w = data['om'].flatten()
 wc = data['om_c'].flatten()
 t = data['t'].flatten()
-z_r = data['range_tr']
-z_phi = data['bearing_tr']
+z_r = data['range_tr'].T
+z_phi = data['bearing_tr'].T
 
 #initial position
 x0 = -5.0

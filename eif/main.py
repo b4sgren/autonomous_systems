@@ -22,6 +22,7 @@ if __name__ == "__main__":
     dead_reckon = np.array([x0, y0, phi0])
     mu = np.array([x0, y0, phi0])
     Omega = eif.Omega
+    Sigma = np.linalg.inv(Omega)
     xi = Omega @ mu
 
     for i in range(params.t.size-1):
@@ -34,13 +35,15 @@ if __name__ == "__main__":
         err = state - mu
         err[2] = unwrap(err[2])
         err_hist.append(err)
-        covar_hist.append(np.diagonal(eif.covar))
+        covar_hist.append(np.diagonal(Sigma))
 
         Car.animateCar(state, mu, dead_reckon)
         plt.pause(0.02)
 
-        state = eif.propagateState(state, params.v[i+1], params.w[i+1])
-        # mu, Sigma, K = eif.update(mu, zt, vc[i+1], wc[i+1])
+        r = params.z_r[:,i]
+        phi = params.z_phi[:,i]
+        zt = np.vstack((r, phi))
+        mu, xi, Sigma = eif.update(xi, zt, params.vc[i+1], params.wc[i+1])
         dead_reckon = eif.propagateState(dead_reckon, params.vc[i+1], params.wc[i+1])
 
     # fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)

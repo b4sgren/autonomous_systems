@@ -30,7 +30,7 @@ class EIF:
         # Prediction Step
         Omega_bar = np.linalg.inv(G @ self.Sigma @ G.T + V @ M @ V.T)
         mu_bar = self.propagateState(mu, v, w)
-        xi_bar = Omega_bar @ mu_bar # self.propagateState(mu, v, w)
+        xi_bar = Omega_bar @ mu_bar 
 
         # Measurement Update
         Q_inv = np.linalg.inv(Q)

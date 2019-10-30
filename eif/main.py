@@ -49,7 +49,6 @@ if __name__ == "__main__":
         dead_reckon = eif.propagateState(dead_reckon, params.vc[i], params.wc[i])
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
-    # t = t[:-1]
     x_hist = np.array(x_hist).T
     x_hist[2] = unwrap(x_hist[2])
     mu_hist = np.array(mu_hist).T

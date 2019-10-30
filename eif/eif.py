@@ -44,8 +44,10 @@ class EIF:
             phi = unwrap(phi)
             z_hat = np.array([r, phi])
 
-            H = np.array([[-(lm[0] - mu_bar[0])/r, -(lm[1] - mu_bar[1])/r, 0],
-                          [(lm[1] - mu_bar[1])/r**2, -(lm[0] - mu_bar[0])/r**2, -1]])
+            # H = np.array([[-(lm[0] - mu_bar[0])/r, -(lm[1] - mu_bar[1])/r, 0],
+                        #   [(lm[1] - mu_bar[1])/r**2, -(lm[0] - mu_bar[0])/r**2, -1]])
+            H = np.array([[-(ds[0])/r, -(ds[1])/r, 0],
+                          [(ds[1])/r**2, -(ds[0])/r**2, -1]])
 
             Omega_bar = Omega_bar + H.T @ Q_inv @ H
             innov = z[:,i] - z_hat

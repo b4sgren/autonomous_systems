@@ -18,7 +18,7 @@ class CarAnimation:
         self.mu_x = []
         self.mu_y = []
 
-        self.ax.scatter(params.lms[0,:], params.lms[1,:], marker='x', color='k')
+        self.ax.scatter(params.lms[0,:], params.lms[1,:], marker='x', color='k', label="Landmarks")
         plt.axis([-15, 15, -15, 15])
         self.ax.grid(b=True)
 
@@ -65,12 +65,13 @@ class CarAnimation:
         self.mu_y.append(mu[1])
 
         if self.flagInit:
-            self.handle.append(Line2D(self.state_x, self.state_y, color='b'))
-            self.handle.append(Line2D(self.mu_x, self.mu_y, color='r'))
-            self.handle.append(Line2D(self.dr_x, self.dr_y, color='k'))
+            self.handle.append(Line2D(self.state_x, self.state_y, color='b', label="Truth"))
+            self.handle.append(Line2D(self.mu_x, self.mu_y, color='r', label="Estimate"))
+            self.handle.append(Line2D(self.dr_x, self.dr_y, color='k', label="Dead Reckoning"))
             self.ax.add_line(self.handle[2])
             self.ax.add_line(self.handle[3])
             self.ax.add_line(self.handle[4])
+            self.ax.legend()
         else:
             self.handle[2].set_xdata(self.state_x)
             self.handle[2].set_ydata(self.state_y)

@@ -27,7 +27,7 @@ if __name__ == "__main__":
     Sigma = np.linalg.inv(Omega)
     xi = Omega @ mu
 
-    for i in range(t.size-1):
+    for i in range(t.size):
         state = params.truth[:,i]
 
         #stuff for plotting
@@ -45,11 +45,11 @@ if __name__ == "__main__":
         r = params.z_r[:,i]
         phi = params.z_phi[:,i]
         zt = np.vstack((r, phi))
-        mu, xi, Sigma = eif.update(xi, zt, params.vc[i+1], params.wc[i+1])
-        dead_reckon = eif.propagateState(dead_reckon, params.vc[i+1], params.wc[i+1])
+        mu, xi, Sigma = eif.update(xi, zt, params.vc[i], params.wc[i])
+        dead_reckon = eif.propagateState(dead_reckon, params.vc[i], params.wc[i])
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
-    t = t[:-1]
+    # t = t[:-1]
     x_hist = np.array(x_hist).T
     x_hist[2] = unwrap(x_hist[2])
     mu_hist = np.array(mu_hist).T
@@ -94,12 +94,13 @@ if __name__ == "__main__":
 
     plt.figure(4)
     xi_hist = np.array(xi_hist).T
-    plt.plot(t, xi_hist[0,:])
-    plt.plot(t, xi_hist[1,:])
-    plt.plot(t, xi_hist[2,:])
+    plt.plot(t, xi_hist[0,:], label="X Info")
+    plt.plot(t, xi_hist[1,:], label="Y Info")
+    plt.plot(t, xi_hist[2,:], label="Heading Info")
     plt.xlabel("Time (s)")
     plt.ylabel("Information Vector Values")
     plt.title("Information Vector vs Time")
+    plt.legend()
 
     plt.show()
     print("Finished")

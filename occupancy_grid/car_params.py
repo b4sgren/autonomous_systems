@@ -16,8 +16,8 @@ y0 = x[1,0]
 theta0 = x[2,0]
 
 # inverse range sensor model
-alpha = 1*1.0 #m
-beta = np.deg2rad(5) #rad
+alpha = 1 #m
+beta = np.deg2rad(2) #rad
 z_max = 150 #m
 
 #grid size

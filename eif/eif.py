@@ -47,12 +47,14 @@ class EIF:
             H = np.array([[-(ds[0])/r, -(ds[1])/r, 0],
                           [(ds[1])/r**2, -(ds[0])/r**2, -1]])
 
-            Omega_bar = Omega_bar + H.T @ Q_inv @ H
+            # Omega_bar = Omega_bar + H.T @ Q_inv @ H
             innov = z[:,i] - z_hat
             innov[1] = unwrap(innov[1])
             xi_bar = xi_bar + H.T @ Q_inv @ (innov + H @ mu_bar)
             mu_bar = np.linalg.inv(Omega_bar) @ xi_bar
             mu_bar[2] = unwrap(mu_bar[2])
+        Omega_bar = Omega_bar + H.T @ Q_inv @ H
+
 
         self.Omega = Omega_bar
         self.Sigma = np.linalg.inv(self.Omega)

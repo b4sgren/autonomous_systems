@@ -27,7 +27,7 @@ if __name__ == "__main__":
     Sigma = np.linalg.inv(Omega)
     xi = Omega @ mu
 
-    for i in range(t.size):
+    for i in range(t.size-1):
         state = params.truth[:,i]
 
         #stuff for plotting
@@ -42,11 +42,12 @@ if __name__ == "__main__":
         Car.animateCar(state, mu, dead_reckon)
         plt.pause(0.02)
 
-        r = params.z_r[:,i]
-        phi = params.z_phi[:,i]
+        r = params.z_r[:,i+1] #plus one to use the measurement from the current state
+        phi = params.z_phi[:,i+1]
         zt = np.vstack((r, phi))
         mu, xi, Sigma = eif.update(xi, zt, params.vc[i], params.wc[i])
         dead_reckon = eif.propagateState(dead_reckon, params.vc[i], params.wc[i])
+    t = t[:-1]
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     x_hist = np.array(x_hist).T

@@ -26,7 +26,7 @@ def getMeasurements(state):
 
     #Will need to add something here to determine if LM's are in the field of view
     ind = np.argwhere(np.abs(z[1]) < params.fov)
-    z = z[:, ind]
+    z = z[:, ind][:,:,0]
 
     return z, ind
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         # y_covar_hist.append(Sigma[1,1])
         # psi_covar_hist.append(Sigma[2,2])
 
-        Car.animateCar(state, mu, dead_reckon)
+        Car.animateCar(state, ekf.mu[:2], dead_reckon)
         plt.pause(0.02)
 
         state = ekf.propagateState(state, v[i], w[i])
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         ekf.update(zt, lm_ind, vc[i], wc[i])
         dead_reckon = ekf.propagateState(dead_reckon, vc[i], wc[i])
 
-        K_hist.append(K)
+        # K_hist.append(K)
 
     # fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     # x_hist = np.array(x_hist).T

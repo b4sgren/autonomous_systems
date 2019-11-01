@@ -92,8 +92,8 @@ class EKF:
             F[0:3, 0:3] = np.eye(3)
             F[3:, 2*lm:2*lm+2] = np.eye(2)
 
-            tempH = np.array([[-r * ds[0], -r*ds[1], 0, r * ds[0], r*ds[1]],
-                            [ds[1], -ds[0], -r**2 -ds[1], ds[0]]])
+            tempH = np.array([[-r * ds[0], -r * ds[1], 0, r * ds[0], r * ds[1]],
+                            [ds[1], -ds[0], -r**2, -ds[1], ds[0]]])
             H = 1/(r**2) * tempH @ F # This operation can be sped up by finding where the values in tempH/(r**2) go in H. H is a 2x2*N+3
             
             K = self.Sigma @ H.T @ np.linalg.inv(H @ self.Sigma @ H.T + Q)

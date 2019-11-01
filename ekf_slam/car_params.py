@@ -14,7 +14,7 @@ alpha4 = 0.1
 # Sensor noise params
 sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
-fov = np.deg2rad(180/2.0) #Radians to each side
+fov = np.deg2rad(360/2.0) #Radians to each side
 
 #landmark locations
 gen_lms = False 

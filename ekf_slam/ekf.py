@@ -2,16 +2,26 @@ import numpy as np
 import car_params as params
 
 def unwrap(phi):
-    while phi >= np.pi:
-        phi = phi - 2 * np.pi
-    while phi < -np.pi:
-        phi = phi + 2 * np.pi
+    phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
     return phi
 
 class EKF:
     def __init__(self, t):
         self.dt = t
-        self.Sigma = np.eye(3)
+        if params.gen_lms:
+            self.num_lms = params.num_lms
+        else:
+            self.num_lms = 3
+
+        self.Sigma = np.eye(3 + 2 * self.num_lms)
+        self.mu = np.ones(3 + 2 * self.num_lms) * np.nan
+        self.mu[0] = params.x0
+        self.mu[1] = params.y0
+        self.mu[2] = params.theta0
+
+        self.F = np.eye(3, 3 + 2 * self.num_lms)
+
+        self.lms_found = {i: False for i in range(self.num_lms)}
 
     def propagateState(self, state, v, w):
         theta = state[2]
@@ -27,36 +37,51 @@ class EKF:
         temp[2] = unwrap(temp[2])
         return temp
 
-    def update(self, mu, z, v, w):
-        G, V, M, Q = self.getJacobians(mu, v, w)
+    def update(self, z, lm_ind, v, w):
+        G, V, M, Q = self.getJacobians(self.mu, v, w)
+        R = V @ M @ V.T
 
-        mu_bar = self.propagateState(mu, v, w)
-        Sigma_bar = G @ self.Sigma @ G.T + V @ M @ V.T
+        mu_bar = self.propagateState(self.mu[:3], v, w)
+        self.mu[:3] = mu_bar
+        Gt = np.eye(3 + 2 * self.num_lms) + self.F.T @ G @ self.F
+        self.Sigma = Gt @ self.Sigma @ Gt.T + self.F.T @ R @ self.F
 
-        for i in range(z.shape[1]):
-            lm = params.lms[:,i]
-            ds = lm - mu_bar[0:2]
+        self.measurementUpdate(z)
 
-            r = np.sqrt(ds @ ds)
-            phi = np.arctan2(ds[1], ds[0]) - mu_bar[2] 
-            phi = unwrap(phi)
-            z_hat = np.array([r, phi])
+        # for i in range(z.shape[1]):
+        #     lm = params.lms[:,i]
+        #     ds = lm - mu_bar[0:2]
 
-            H = np.array([[-(lm[0] - mu_bar[0])/r, -(lm[1] - mu_bar[1])/r, 0],
-                          [(lm[1] - mu_bar[1])/r**2, -(lm[0] - mu_bar[0])/r**2, -1]])
+        #     r = np.sqrt(ds @ ds)
+        #     phi = np.arctan2(ds[1], ds[0]) - mu_bar[2] 
+        #     phi = unwrap(phi)
+        #     z_hat = np.array([r, phi])
 
-            S = H @ Sigma_bar @ H.T + Q
-            K = Sigma_bar @ H.T @ np.linalg.inv(S)
+        #     H = np.array([[-(lm[0] - mu_bar[0])/r, -(lm[1] - mu_bar[1])/r, 0],
+        #                   [(lm[1] - mu_bar[1])/r**2, -(lm[0] - mu_bar[0])/r**2, -1]])
 
-            innov = z[:,i] - z_hat
-            innov[1] = unwrap(innov[1])
-            mu_bar = mu_bar + K @ (innov) 
-            mu_bar[2] = unwrap(mu_bar[2])
-            Sigma_bar = (np.eye(3) - K @ H) @ Sigma_bar
+        #     S = H @ Sigma_bar @ H.T + Q
+        #     K = Sigma_bar @ H.T @ np.linalg.inv(S)
 
-        self.Sigma = Sigma_bar
-        mu_bar[2] = unwrap(mu_bar[2])
-        return mu_bar, self.Sigma, K
+        #     innov = z[:,i] - z_hat
+        #     innov[1] = unwrap(innov[1])
+        #     mu_bar = mu_bar + K @ (innov) 
+        #     mu_bar[2] = unwrap(mu_bar[2])
+        #     Sigma_bar = (np.eye(3) - K @ H) @ Sigma_bar
+
+        # self.Sigma = Sigma_bar
+        # mu_bar[2] = unwrap(mu_bar[2])
+        # return mu_bar, self.Sigma, K
+
+    def measurementUpdate(self, z):
+       for i in range(z.shape[1]):  # This will need to be modified when FOV is introduced
+           if not self.lms_found[i]:
+               theta = self.mu[2]
+               phi = z[1, i]
+               D = np.array([np.cos(phi + theta), np.sin(phi + theta), 0]) * z[0,i]
+               self.mu[3 + i * 2: 5 + i*2] = self.mu[:3] + D 
+            
+
 
     def getJacobians(self, mu, v, w):
         theta = mu[2]

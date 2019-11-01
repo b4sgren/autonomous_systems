@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
         state = ekf.propagateState(state, v[i], w[i])
         zt, lm_ind = getMeasurements(state)
-        mu, Sigma, K = ekf.update(zt, lm_ind, vc[i], wc[i])
+        ekf.update(zt, lm_ind, vc[i], wc[i])
         dead_reckon = ekf.propagateState(dead_reckon, vc[i], wc[i])
 
         K_hist.append(K)

@@ -46,7 +46,7 @@ class EKF:
         Gt = np.eye(3 + 2 * self.num_lms) + self.F.T @ G @ self.F
         self.Sigma = Gt @ self.Sigma @ Gt.T + self.F.T @ R @ self.F
 
-        self.measurementUpdate(z)
+        self.measurementUpdate(z, lm_ind, Q)
 
         # for i in range(z.shape[1]):
         #     lm = params.lms[:,i]
@@ -73,15 +73,35 @@ class EKF:
         # mu_bar[2] = unwrap(mu_bar[2])
         # return mu_bar, self.Sigma, K
 
-    def measurementUpdate(self, z):
-       for i in range(z.shape[1]):  # This will need to be modified when FOV is introduced
-           if not self.lms_found[i]:
+    def measurementUpdate(self, z, lm_ind, Q):
+       for i in range(lm_ind.size):  # This will need to be modified when FOV is introduced
+            lm = lm_ind.item(i)
+            if not self.lms_found[lm]:
                theta = self.mu[2]
                phi = z[1, i]
-               D = np.array([np.cos(phi + theta), np.sin(phi + theta), 0]) * z[0,i]
-               self.mu[3 + i * 2: 5 + i*2] = self.mu[:3] + D 
-            
+               D = np.array([np.cos(phi + theta), np.sin(phi + theta)]) * z[0,i]
+               self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D 
+            #Get expected measurement
+            lm_pos = self.mu[3 + lm*2: 5 + lm*2]
+            ds = lm_pos - self.mu[0:2]
+            r = np.sqrt(ds @ ds)
+            theta = unwrap(np.arctan2(ds[1], ds[0]) - self.mu[2])
+            z_hat = np.array([r, theta])
 
+            F = np.zeros((5, 2 * self.num_lms + 3))
+            F[0:3, 0:3] = np.eye(3)
+            F[3:, 2*lm:2*lm+2] = np.eye(2)
+
+            tempH = np.array([[-r * ds[0], -r*ds[1], 0, r * ds[0], r*ds[1]],
+                            [ds[1], -ds[0], -r**2 -ds[1], ds[0]]])
+            H = 1/(r**2) * tempH @ F # This operation can be sped up by finding where the values in tempH/(r**2) go in H. H is a 2x2*N+3
+            
+            K = self.Sigma @ H.T @ np.linalg.inv(H @ self.Sigma @ H.T + Q)
+
+            innov = z[:,i] - z_hat
+            innov[1] = unwrap(innov[1])
+            self.mu = self.mu + K @ (innov)
+            self.Sigma = (np.eye(3 + 2 * self.num_lms) - K @ H) @ self.Sigma
 
     def getJacobians(self, mu, v, w):
         theta = mu[2]

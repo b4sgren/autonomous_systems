@@ -48,31 +48,6 @@ class EKF:
 
         self.measurementUpdate(z, lm_ind, Q)
 
-        # for i in range(z.shape[1]):
-        #     lm = params.lms[:,i]
-        #     ds = lm - mu_bar[0:2]
-
-        #     r = np.sqrt(ds @ ds)
-        #     phi = np.arctan2(ds[1], ds[0]) - mu_bar[2] 
-        #     phi = unwrap(phi)
-        #     z_hat = np.array([r, phi])
-
-        #     H = np.array([[-(lm[0] - mu_bar[0])/r, -(lm[1] - mu_bar[1])/r, 0],
-        #                   [(lm[1] - mu_bar[1])/r**2, -(lm[0] - mu_bar[0])/r**2, -1]])
-
-        #     S = H @ Sigma_bar @ H.T + Q
-        #     K = Sigma_bar @ H.T @ np.linalg.inv(S)
-
-        #     innov = z[:,i] - z_hat
-        #     innov[1] = unwrap(innov[1])
-        #     mu_bar = mu_bar + K @ (innov) 
-        #     mu_bar[2] = unwrap(mu_bar[2])
-        #     Sigma_bar = (np.eye(3) - K @ H) @ Sigma_bar
-
-        # self.Sigma = Sigma_bar
-        # mu_bar[2] = unwrap(mu_bar[2])
-        # return mu_bar, self.Sigma, K
-
     def measurementUpdate(self, z, lm_ind, Q):
        for i in range(lm_ind.size):  # This will need to be modified when FOV is introduced
             lm = lm_ind.item(i)

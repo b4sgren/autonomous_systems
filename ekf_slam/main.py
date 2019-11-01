@@ -24,7 +24,6 @@ def getMeasurements(state):
     z[1] = theta + np.random.normal(0, params.sigma_theta, size=theta.size)
     z[1] = unwrap(z[1])
 
-    #Will need to add something here to determine if LM's are in the field of view
     ind = np.argwhere(np.abs(z[1]) < params.fov)
     z = z[:, ind][:,:,0]
 

@@ -23,7 +23,6 @@ class CarAnimation:
         self.ax.grid(b=True)
 
     def animateCar(self, state, mu, dr, lm_est):
-        # plt.cla()
         self.drawCar(state)
         self.drawLine(state)
         self.drawStates(state, mu, dr)
@@ -92,11 +91,10 @@ class CarAnimation:
         
         lmx = lm_est[x_ind]
         lmy = lm_est[y_ind]
-        plt.scatter(lmx, lmy, color='g', marker='x')
+        lm = np.vstack((lmx, lmy)).T
 
-        # if self.flagInit:
-        #     handle = plt.scatter(lmx, lmy, color='g', marker='x')
-        #     self.handle.append(handle)
-        # else:
-        #     self.handle[5].set_xdata(lmx)
-        #     self.handle[5].set_ydata(lmy)
+        if self.flagInit:
+            handle = plt.scatter(lmx, lmy, color='g', marker='x')
+            self.handle.append(handle)
+        else:
+            self.handle[5].set_offsets(lm)

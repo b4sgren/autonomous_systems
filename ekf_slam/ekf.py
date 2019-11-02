@@ -52,10 +52,11 @@ class EKF:
        for i in range(lm_ind.size):  # This will need to be modified when FOV is introduced
             lm = lm_ind.item(i)
             if not self.lms_found[lm]:
-               theta = self.mu[2]
-               phi = z[1, i]
-               D = np.array([np.cos(phi + theta), np.sin(phi + theta)]) * z[0,i]
-               self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D 
+                self.lms_found[lm] = True
+                theta = self.mu[2]
+                phi = z[1, i]
+                D = np.array([np.cos(phi + theta), np.sin(phi + theta)]) * z[0,i]
+                self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D 
             #Get expected measurement
             lm_pos = self.mu[3 + lm*2: 5 + lm*2]
             ds = lm_pos - self.mu[0:2]

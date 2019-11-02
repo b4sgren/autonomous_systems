@@ -22,10 +22,12 @@ class CarAnimation:
         plt.axis([-10, 10, -10, 10])
         self.ax.grid(b=True)
 
-    def animateCar(self, state, mu, dr):
+    def animateCar(self, state, mu, dr, lm_est):
+        # plt.cla()
         self.drawCar(state)
         self.drawLine(state)
         self.drawStates(state, mu, dr)
+        self.drawLandmarks(lm_est)
         self.flagInit = False
 
     def drawCar(self, state):
@@ -78,3 +80,23 @@ class CarAnimation:
             self.handle[3].set_ydata(self.mu_y)
             self.handle[4].set_xdata(self.dr_x)
             self.handle[4].set_ydata(self.dr_y)
+
+    def drawLandmarks(self, lm_est):
+        if params.gen_lms:
+            num_lms = params.num_lms
+        else:
+            num_lms = 3
+        
+        x_ind = np.arange(0, 2*num_lms - 1, step=2)
+        y_ind = np.arange(1, 2 * num_lms, step=2)
+        
+        lmx = lm_est[x_ind]
+        lmy = lm_est[y_ind]
+        plt.scatter(lmx, lmy, color='g', marker='x')
+
+        # if self.flagInit:
+        #     handle = plt.scatter(lmx, lmy, color='g', marker='x')
+        #     self.handle.append(handle)
+        # else:
+        #     self.handle[5].set_xdata(lmx)
+        #     self.handle[5].set_ydata(lmy)

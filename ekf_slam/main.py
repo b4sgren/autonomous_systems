@@ -62,7 +62,7 @@ if __name__ == "__main__":
         # y_covar_hist.append(Sigma[1,1])
         # psi_covar_hist.append(Sigma[2,2])
 
-        Car.animateCar(state, ekf.mu[:2], dead_reckon)
+        Car.animateCar(state, ekf.mu[:2], dead_reckon, ekf.mu[3:])
         plt.pause(0.02)
 
         state = ekf.propagateState(state, v[i], w[i])

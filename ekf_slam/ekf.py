@@ -13,11 +13,10 @@ class EKF:
         else:
             self.num_lms = 3
 
-        self.Sigma = np.eye(3 + 2 * self.num_lms)
+        self.Sigma = np.zeros((3 + 2 * self.num_lms, 3 + 2 * self.num_lms))
+        self.Sigma[0:3, 0:3] = np.eye(3) * .001 # We are pretty certain we are at 0, 0, pi/2
         self.mu = np.ones(3 + 2 * self.num_lms) * np.nan
-        self.mu[0] = params.x0
-        self.mu[1] = params.y0
-        self.mu[2] = params.theta0
+        self.mu[:3] = np.zeros(3)
 
         self.F = np.eye(3, 3 + 2 * self.num_lms)
 
@@ -56,7 +55,7 @@ class EKF:
                 theta = self.mu[2]
                 phi = z[1, i]
                 D = np.array([np.cos(phi + theta), np.sin(phi + theta)]) * z[0,i]
-                self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D 
+                self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D # Do i need to initialize the covariance?
             #Get expected measurement
             lm_pos = self.mu[3 + lm*2: 5 + lm*2]
             ds = lm_pos - self.mu[0:2]

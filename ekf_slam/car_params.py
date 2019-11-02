@@ -20,7 +20,7 @@ fov = np.deg2rad(360/2.0) #Radians to each side
 gen_lms = False 
 num_lms = 10
 if gen_lms:
-    lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))
+    lms = np.random.uniform(low=-15.0, high=15.0, size=(2, num_lms))
 else:
     lms = np.array([[6, -7, 6], [4, 8, -4]])
 

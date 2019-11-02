@@ -46,8 +46,8 @@ if __name__ == "__main__":
     psi_covar_hist = []
     K_hist = []
 
-    state = np.array([params.x0, params.y0, params.theta0])
-    dead_reckon = np.array([params.x0, params.y0, params.theta0])
+    state = np.zeros(3) #np.array([params.x0, params.y0, params.theta0])
+    dead_reckon = np.zeros(3) #np.array([params.x0, params.y0, params.theta0])
     mu = ekf.mu
     Sigma = ekf.Sigma
 

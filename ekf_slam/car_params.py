@@ -18,7 +18,7 @@ fov = np.deg2rad(180/2.0) #Radians to each side
 
 #landmark locations
 gen_lms = True #False 
-num_lms = 10
+num_lms = 20
 if gen_lms:
     lms = np.random.uniform(low=-15.0, high=15.0, size=(2, num_lms))
 else:

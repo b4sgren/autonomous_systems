@@ -75,6 +75,7 @@ class EKF:
             innov = z[:,i] - z_hat
             innov[1] = unwrap(innov[1])
             self.mu = self.mu + K @ (innov)
+            self.mu[2] = unwrap(self.mu[2])
             self.Sigma = (np.eye(3 + 2 * self.num_lms) - K @ H) @ self.Sigma
 
     def getJacobians(self, mu, v, w):

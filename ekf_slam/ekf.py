@@ -13,10 +13,9 @@ class EKF:
         else:
             self.num_lms = 3
 
-        self.Sigma = np.zeros((3 + 2 * self.num_lms, 3 + 2 * self.num_lms))
-        self.Sigma[0:3, 0:3] = np.eye(3) * .001 # We are pretty certain we are at 0, 0, pi/2
-        self.mu = np.ones(3 + 2 * self.num_lms) * np.nan
-        self.mu[:3] = np.zeros(3)
+        self.Sigma = np.diag(np.ones(3 + 2 * self.num_lms)* 1e5) #Would use inf but causes issues. Using a really big number instead
+        self.Sigma[0:3, 0:3] = np.eye(3) * 0 
+        self.mu = np.zeros(3 + 2 * self.num_lms) 
 
         self.F = np.eye(3, 3 + 2 * self.num_lms)
 
@@ -55,7 +54,7 @@ class EKF:
                 theta = self.mu[2]
                 phi = z[1, i]
                 D = np.array([np.cos(phi + theta), np.sin(phi + theta)]) * z[0,i]
-                self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D # Do i need to initialize the covariance?
+                self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D 
             #Get expected measurement
             lm_pos = self.mu[3 + lm*2: 5 + lm*2]
             ds = lm_pos - self.mu[0:2]
@@ -65,7 +64,7 @@ class EKF:
 
             F = np.zeros((5, 2 * self.num_lms + 3))
             F[0:3, 0:3] = np.eye(3)
-            F[3:, 2*lm:2*lm+2] = np.eye(2)
+            F[3:, 2*lm+3:2*lm+5] = np.eye(2)
 
             tempH = np.array([[-r * ds[0], -r * ds[1], 0, r * ds[0], r * ds[1]],
                             [ds[1], -ds[0], -r**2, -ds[1], ds[0]]])
@@ -86,7 +85,8 @@ class EKF:
         swt = np.sin(theta + w * self.dt)
 
         #Jacobian of motion model wrt the states
-        G = np.eye(3)
+        # G = np.eye(3)
+        G = np.zeros((3,3)) #Doing this because I add eye up in other function when augmenting
         G[0,2] = -v/w * ct + v/w * cwt
         G[1,2] = -v/w * st + v/w * swt
 

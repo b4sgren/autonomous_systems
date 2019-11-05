@@ -17,7 +17,7 @@ sigma_theta = 0.05 * 1 #rad
 fov = np.deg2rad(360/2.0) #Radians to each side
 
 #landmark locations
-gen_lms = False 
+gen_lms = True 
 num_lms = 20
 if gen_lms:
     lms = np.random.uniform(low=-15.0, high=15.0, size=(2, num_lms))

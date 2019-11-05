@@ -21,7 +21,7 @@ def getMeasurements(state):
     r = np.sqrt(np.sum(ds**2, axis=0))
     theta = np.arctan2(ds[1], ds[0]) - state[2]
 
-    z[0] = r + np.random.normal(0, params.sigma_r, size=r.size)
+    z[0] = r + np.random.normal(0, params.sigma_r, size=r.size) #Measurement noise seems to be what is making everything do really bad
     z[1] = theta + np.random.normal(0, params.sigma_theta, size=theta.size)
     z[1] = unwrap(z[1])
 

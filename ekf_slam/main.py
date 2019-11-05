@@ -5,6 +5,7 @@ import car_params as params
 import scipy.io as sio
 from ekf import EKF
 from ekf import unwrap
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def generateVelocities(t):
@@ -111,6 +112,15 @@ if __name__ == "__main__":
     ax2[2].set_xlabel("Time (s)")
     ax2[2].legend()
     ax2[0].set_title("Error vs Time")
+
+    tempx = np.arange(3 + 2 * ekf.num_lms)
+    tempy = np.arange(3 + 2 * ekf.num_lms)
+    xx, yy = np.meshgrid(tempx, tempy)
+    fig3 = plt.figure(4)
+    ax3 = fig3.add_subplot(111, projection='3d')
+    # ax3.bar3d(xx, yy, np.zeros_like(ekf.Sigma), 1, 1, ekf.Sigma, shade=True)
+    ax3.bar3d(xx.ravel(), yy.ravel(), 0, 1, 1, np.abs(ekf.Sigma.ravel()), shade=True)
+
 
     plt.show()
     print("Finished")

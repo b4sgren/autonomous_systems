@@ -46,7 +46,6 @@ class EKF:
         Gt = sp.linalg.block_diag(G, np.eye(2 * self.num_lms))
         Rt = sp.linalg.block_diag(R, np.zeros((2 * self.num_lms, 2 * self.num_lms)))
         self.Sigma = Gt @ self.Sigma @ Gt.T + Rt # self.F.T @ R @ self.F #Scipy.blockdiag w/ R and I
-
         self.measurementUpdate(z, lm_ind, Q)
 
     def measurementUpdate(self, z, lm_ind, Q):

@@ -94,10 +94,6 @@ class CarAnimation:
             if found:
                 x_ind.append(2*lm)
                 y_ind.append(2*lm+1)
-                # Sigmas.append(Sigma[2*lm:2*lm+2, 2*lm:2*lm + 2])
-        
-        # x_ind = np.arange(0, 2*num_lms - 1, step=2)
-        # y_ind = np.arange(1, 2 * num_lms, step=2)
         
         lmx = lm_est[x_ind]
         lmy = lm_est[y_ind]

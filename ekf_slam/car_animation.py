@@ -9,7 +9,7 @@ class CarAnimation:
         self.flagInit = True
         self.fig, self.ax = plt.subplots() #creates the subplots
         self.handle = []
-        self.ellpise_handles = []
+        self.ellipse_handle = []
 
         self.line = np.array([[0, 0.5], [0, 0]]) #car initially facing north
         self.dr_x = []
@@ -23,11 +23,11 @@ class CarAnimation:
         plt.axis([-15, 15, -15, 15])
         self.ax.grid(b=True)
 
-    def animateCar(self, state, mu, dr, lm_est):
+    def animateCar(self, state, mu, dr, lm_est, Sigma, lms_found):
         self.drawCar(state)
         self.drawLine(state)
         self.drawStates(state, mu, dr)
-        self.drawLandmarks(lm_est)
+        self.drawLandmarks(lm_est, Sigma, lms_found)
         self.flagInit = False
 
     def drawCar(self, state):
@@ -81,14 +81,23 @@ class CarAnimation:
             self.handle[4].set_xdata(self.dr_x)
             self.handle[4].set_ydata(self.dr_y)
 
-    def drawLandmarks(self, lm_est):
+    def drawLandmarks(self, lm_est, Sigma, lms_found):
         if params.gen_lms:
             num_lms = params.num_lms
         else:
             num_lms = 3
+
+        x_ind = []
+        y_ind = []
+        Sigmas = []
+        for lm, found in lms_found.items():
+            if found:
+                x_ind.append(2*lm)
+                y_ind.append(2*lm+1)
+                # Sigmas.append(Sigma[2*lm:2*lm+2, 2*lm:2*lm + 2])
         
-        x_ind = np.arange(0, 2*num_lms - 1, step=2)
-        y_ind = np.arange(1, 2 * num_lms, step=2)
+        # x_ind = np.arange(0, 2*num_lms - 1, step=2)
+        # y_ind = np.arange(1, 2 * num_lms, step=2)
         
         lmx = lm_est[x_ind]
         lmy = lm_est[y_ind]
@@ -97,5 +106,23 @@ class CarAnimation:
         if self.flagInit:
             handle = plt.scatter(lmx, lmy, color='g', marker='x')
             self.handle.append(handle)
+            for lm, found in lms_found.items():
+                covar = Sigma[2*lm:2*lm+2, 2*lm:2*lm+2]
+                U, S, VH = np.linalg.svd(covar)
+                C = U * np.sqrt(S)
+                theta = np.linspace(0, 2*np.pi, 100)
+                circle = np.vstack((np.cos(theta), np.sin(theta)))
+                ellipse = C @ circle + lm_est[2*lm:2*lm+2,None]
+                self.ellipse_handle.append(Line2D(ellipse[0,:], ellipse[1,:], color='r'))
+                self.ax.add_line(self.ellipse_handle[lm])
         else:
             self.handle[5].set_offsets(lm)
+            for lm, found in lms_found.items():
+                covar = Sigma[2*lm:2*lm+2, 2*lm:2*lm+2]
+                U, S, VH = np.linalg.svd(covar)
+                C = U * np.sqrt(S)
+                theta = np.linspace(0, 2*np.pi, 100)
+                circle = np.vstack((np.cos(theta), np.sin(theta)))
+                ellipse = C @ circle + lm_est[2*lm:2*lm+2, None]
+                self.ellipse_handle[lm].set_xdata(ellipse[0,:])
+                self.ellipse_handle[lm].set_ydata(ellipse[1,:])

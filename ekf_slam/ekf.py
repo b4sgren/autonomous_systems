@@ -61,6 +61,7 @@ class EKF:
             lm_pos = self.mu[3 + lm*2: 5 + lm*2]
             ds = lm_pos - self.mu[0:2]
             r = np.sqrt(ds @ ds)
+            q = r**2
             theta = unwrap(np.arctan2(ds[1], ds[0]) - self.mu[2])
             z_hat = np.array([r, theta])
 
@@ -69,8 +70,8 @@ class EKF:
             F[3:, 2*lm+3:2*lm+5] = np.eye(2)
 
             tempH = np.array([[-r * ds[0], -r * ds[1], 0, r * ds[0], r * ds[1]],
-                            [ds[1], -ds[0], -r**2, -ds[1], ds[0]]])
-            H = 1/(r**2) * tempH @ F # This operation can be sped up by finding where the values in tempH/(r**2) go in H. H is a 2x2*N+3
+                            [ds[1], -ds[0], -q, -ds[1], ds[0]]])
+            H = 1/(q) * tempH @ F # This operation can be sped up by finding where the values in tempH/(r**2) go in H. H is a 2x2*N+3
             
             K = self.Sigma @ H.T @ np.linalg.inv(H @ self.Sigma @ H.T + Q)
 

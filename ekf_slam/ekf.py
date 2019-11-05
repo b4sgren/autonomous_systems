@@ -1,5 +1,6 @@
 import numpy as np
 import car_params as params
+import scipy as sp
 
 def unwrap(phi):
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
@@ -41,8 +42,10 @@ class EKF:
 
         mu_bar = self.propagateState(self.mu[:3], v, w)
         self.mu[:3] = mu_bar
-        Gt = np.eye(3 + 2 * self.num_lms) + self.F.T @ G @ self.F  #Scipy.blockdiag w/ G and I. Add identity to G in getJacobians function
-        self.Sigma = Gt @ self.Sigma @ Gt.T + self.F.T @ R @ self.F #Scipy.blockdiag w/ R and I
+        # Gt = np.eye(3 + 2 * self.num_lms) + self.F.T @ G @ self.F  #Scipy.blockdiag w/ G and I. Add identity to G in getJacobians function
+        Gt = sp.linalg.block_diag(G, np.eye(2 * self.num_lms))
+        Rt = sp.linalg.block_diag(R, np.zeros((2 * self.num_lms, 2 * self.num_lms)))
+        self.Sigma = Gt @ self.Sigma @ Gt.T + Rt # self.F.T @ R @ self.F #Scipy.blockdiag w/ R and I
 
         self.measurementUpdate(z, lm_ind, Q)
 
@@ -86,7 +89,8 @@ class EKF:
         swt = np.sin(theta + w * self.dt)
 
         #Jacobian of motion model wrt the states
-        G = np.zeros((3,3))
+        # G = np.zeros((3,3))
+        G = np.eye(3)
         G[0,2] = -v/w * ct + v/w * cwt
         G[1,2] = -v/w * st + v/w * swt
 

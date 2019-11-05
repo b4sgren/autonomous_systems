@@ -121,7 +121,6 @@ if __name__ == "__main__":
     # ax3.bar3d(xx, yy, np.zeros_like(ekf.Sigma), 1, 1, ekf.Sigma, shade=True)
     ax3.bar3d(xx.ravel(), yy.ravel(), 0, 1, 1, np.abs(ekf.Sigma.ravel()), shade=True)
 
-
     plt.show()
     print("Finished")
     plt.close()

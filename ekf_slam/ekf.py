@@ -15,7 +15,7 @@ class EKF:
             self.num_lms = 3
 
         self.Sigma = np.diag(np.ones(3 + 2 * self.num_lms)* 1e5) #Would use inf but causes issues. Using a really big number instead
-        self.Sigma[0:3, 0:3] = np.eye(3) * 0 
+        self.Sigma[0:3, 0:3] = np.zeros((3,3))
         self.mu = np.zeros(3 + 2 * self.num_lms) 
 
         self.F = np.eye(3, 3 + 2 * self.num_lms)

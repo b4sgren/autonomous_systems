@@ -56,6 +56,7 @@ class EKF:
                 phi = z[1, i]
                 D = np.array([np.cos(phi + theta), np.sin(phi + theta)]) * z[0,i]
                 self.mu[3 + lm * 2: 5 + lm*2] = self.mu[:2] + D 
+                
             #Get expected measurement
             lm_pos = self.mu[3 + lm*2: 5 + lm*2]
             ds = lm_pos - self.mu[0:2]
@@ -63,6 +64,9 @@ class EKF:
             q = r**2
             theta = unwrap(np.arctan2(ds[1], ds[0]) - self.mu[2])
             z_hat = np.array([r, theta])
+
+            innov = z[:,i] - z_hat
+            innov[1] = unwrap(innov[1])
 
             F = np.zeros((5, 2 * self.num_lms + 3))
             F[0:3, 0:3] = np.eye(3)
@@ -74,8 +78,6 @@ class EKF:
             
             K = self.Sigma @ H.T @ np.linalg.inv(H @ self.Sigma @ H.T + Q)
 
-            innov = z[:,i] - z_hat
-            innov[1] = unwrap(innov[1])
             self.mu = self.mu + K @ (innov)
             self.mu[2] = unwrap(self.mu[2])
             self.Sigma = (np.eye(3 + 2 * self.num_lms) - K @ H) @ self.Sigma
@@ -103,6 +105,6 @@ class EKF:
                      params.alpha3 * v**2 + params.alpha4 * w**2])
 
         #Measurement Noise
-        Q = np.diag([params.sigma_r**2, params.sigma_theta**2])
+        Q = np.diag([params.sigma_r**2, params.sigma_theta**2]) #Using adjusted noise parameters
 
         return G, V, M, Q

@@ -47,8 +47,8 @@ if __name__ == "__main__":
     psi_covar_hist = []
     K_hist = []
 
-    state = np.zeros(3) #np.array([params.x0, params.y0, params.theta0])
-    dead_reckon = np.zeros(3) #np.array([params.x0, params.y0, params.theta0])
+    state = np.zeros(3)
+    dead_reckon = np.zeros(3) 
     mu = ekf.mu
     Sigma = ekf.Sigma
 
@@ -118,7 +118,6 @@ if __name__ == "__main__":
     xx, yy = np.meshgrid(tempx, tempy)
     fig3 = plt.figure(4)
     ax3 = fig3.add_subplot(111, projection='3d')
-    # ax3.bar3d(xx, yy, np.zeros_like(ekf.Sigma), 1, 1, ekf.Sigma, shade=True)
     ax3.bar3d(xx.ravel(), yy.ravel(), 0, 1, 1, np.abs(ekf.Sigma.ravel()), shade=True)
 
     plt.show()

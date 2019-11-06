@@ -108,7 +108,7 @@ class CarAnimation:
                 C = U * np.sqrt(S)
                 theta = np.linspace(0, 2*np.pi, 100)
                 circle = np.vstack((np.cos(theta), np.sin(theta)))
-                ellipse = C @ circle + lm_est[2*lm:2*lm+2,None]
+                ellipse = C @ circle + lm_est[2*lm:2*lm+2,None] * 2
                 self.ellipse_handle.append(Line2D(ellipse[0,:], ellipse[1,:], color='r'))
                 self.ax.add_line(self.ellipse_handle[lm])
         else:

@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 def generateVelocities(t):
     v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
-    w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
+    w = -0.2 + 1 * np.cos(2 * np.pi * 1 * t)
 
     return v, w
 

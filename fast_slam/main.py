@@ -2,23 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from car_animation import CarAnimation
 import car_params as params
-import scipy.io as sio
 from particle_filter import ParticleFilter
 from particle_filter import unwrap
 
 def generateVelocities(t):
     v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
-    w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
+    w = -0.2 + 1 * np.cos(2 * np.pi * 0.2 * t)
 
     return v, w
-
-def readFile():
-    data = sio.loadmat("hw3_4_soln_data.mat")
-    t = data["t"].flatten()
-    v = data["v"].flatten()
-    w = data["om"].flatten()
-
-    return t, v, w
 
 def getMeasurements(state):
     ds = params.lms - state[0:2].reshape((2,1))
@@ -26,20 +17,15 @@ def getMeasurements(state):
     theta = (np.arctan2(ds[1,:], ds[0,:]) - state[2]) + np.random.normal(0, params.sigma_theta, size=(params.lms.shape[1]))
     theta = unwrap(theta)
 
-    z = np.array([[r.flatten()], [theta.flatten()]]).reshape((2,3))
+    z = np.array([[r.squeeze()], [theta.squeeze()]]).reshape((2,3))
 
     return z
 
 if __name__ == "__main__":
-    read_file = False
-    if read_file:
-        t, v, w = readFile()
-        vc, wc = generateVelocities(t)
-    else:
-        t = np.arange(0, params.tf, params.dt)
-        vc, wc = generateVelocities(t)
-        v = vc + np.sqrt(params.alpha1 * vc**2 + params.alpha2 * wc**2) * np.random.randn(vc.size)
-        w = wc + np.sqrt(params.alpha3 * vc**2 + params.alpha4 * wc**2) * np.random.randn(wc.size)
+    t = np.arange(0, params.tf, params.dt)
+    vc, wc = generateVelocities(t)
+    v = vc + np.sqrt(params.alpha1 * vc**2 + params.alpha2 * wc**2) * np.random.randn(vc.size)
+    w = wc + np.sqrt(params.alpha3 * vc**2 + params.alpha4 * wc**2) * np.random.randn(wc.size)
 
     Car = CarAnimation()
     filter = ParticleFilter(params.dt)
@@ -51,15 +37,10 @@ if __name__ == "__main__":
     y_covar_hist = []
     psi_covar_hist = []
 
-    x0 = params.x0
-    y0 = params.y0
-    phi0 = params.theta0
-
-    state = np.array([x0, y0, phi0])
-    dead_reckon = np.array([x0, y0, phi0])
+    state = np.zeros(3)
+    dead_reckon = np.zeros(3)
     Chi = np.zeros((3, params.M))
-    Chi[0:2,:] = np.random.uniform(-10.0, 10.0, size=(2, params.M))
-    Chi[2,:] = np.random.uniform(-np.pi, np.pi, size=(params.M))
+    w = np.ones(params.M)/params.M  #Evenly distributed weights
     mu = np.mean(Chi, axis=1)
     Sigma = np.cov(mu.reshape((3,1)) - Chi)
 

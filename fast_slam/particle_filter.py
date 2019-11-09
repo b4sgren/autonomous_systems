@@ -28,16 +28,13 @@ class ParticleFilter:
 
     def propagateParticles(self, Chi, vc, wc):
         #Add noise to velocities to separate the particles
-        a1 = params.alpha1 * 1
-        a2 = params.alpha2 * 1
-        a3 = params.alpha3 * 1
-        a4 = params.alpha4 * 1
-        a5 = params.alpha5 * 1
-        a6 = params.alpha6 * 1
+        a1 = params.alpha1
+        a2 = params.alpha2
+        a3 = params.alpha3
+        a4 = params.alpha4
 
         v = vc + np.sqrt(a1 * vc**2 + a2 * wc**2) * np.random.randn(params.M)
         w = wc + np.sqrt(a3 * vc**2 + a4 * wc**2) * np.random.randn(params.M)
-        gamma = np.sqrt(a5 * vc**2 + a6 * wc**2) * np.random.randn(params.M)
 
         thetas = Chi[2,:]
         st = np.sin(thetas)
@@ -47,7 +44,7 @@ class ParticleFilter:
 
         A = np.array([-v/w * st + v/w * stw,
                       v/w * ct - v/w * ctw,
-                      w * self.dt + gamma * self.dt])
+                      w * self.dt])
         temp = Chi + A
         temp[2] = unwrap(temp[2])
         return temp
@@ -115,7 +112,7 @@ class ParticleFilter:
     def update(self, mu, Sigma, Chi, z, v, w):
         Chi = self.propagateParticles(Chi, v, w)
         Chi, wc = self.measurement_update(Chi, z)
-        Chi = self.lowVarianceSampling(Chi, wc) # I think I'm getting all my weights on too few particles
+        Chi = self.lowVarianceSampling(Chi, wc)
         mu, Sigma = self.recoverMeanAndCovar(Chi, wc)
 
         return mu, Sigma, Chi

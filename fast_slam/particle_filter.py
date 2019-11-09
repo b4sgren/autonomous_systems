@@ -6,7 +6,6 @@ def unwrap(phi):
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
     return phi
 
-
 class ParticleFilter:
     def __init__(self, t):
         self.dt = t
@@ -109,10 +108,10 @@ class ParticleFilter:
 
         return mu, Sigma
 
-    def update(self, mu, Sigma, Chi, z, v, w):
+    def update(self, Chi, z, v, w):
         Chi = self.propagateParticles(Chi, v, w)
-        Chi, wc = self.measurement_update(Chi, z)
-        Chi = self.lowVarianceSampling(Chi, wc)
-        mu, Sigma = self.recoverMeanAndCovar(Chi, wc)
+        # Chi, wc = self.measurement_update(Chi, z)
+        # Chi = self.lowVarianceSampling(Chi, wc)
+        # mu, Sigma = self.recoverMeanAndCovar(Chi, wc)
 
-        return mu, Sigma, Chi
+        return Chi

@@ -11,11 +11,14 @@ sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
 
 #number of particles
-M = 1000
+M = 100
 
 #landmark locations
 gen_lms = False
-num_lms = 8
+if gen_lms:
+    num_lms = 8
+else:
+    num_lms = 3
 if gen_lms:
     lms = np.random.uniform(low=-10.0, high=10.0, size=(2, num_lms))
 else:

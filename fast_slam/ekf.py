@@ -5,9 +5,10 @@ from particle_filter import unwrap
 class EKF:
     def __init__(self, t):
         self.dt = t
-        self.Sigma = np.eye(2)
+        self.Sigma = np.eye(2) * 1e6 # No idea where LM is
         self.mu = np.zeros(2)
         self.Q = np.diag([params.sigma_r**2, params.sigma_theta**2])
+        self.found = False
 
     def update(self, mu, z, v, w):
         for i in range(z.shape[1]):
@@ -23,7 +24,7 @@ class EKF:
             H = np.array([[-(lm[0] - self.mu[0])/r, -(lm[1] - self.mu[1])/r, 0],
                           [(lm[1] - self.mu[1])/r**2, -(lm[0] - self.mu[0])/r**2, -1]])
 
-            S = H @ self.Sigma @ H.T + Q
+            S = H @ self.Sigma @ H.T + self.Q
             K = self.Sigma @ H.T @ np.linalg.inv(S)
 
             innov = z[:,i] - z_hat

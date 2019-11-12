@@ -11,7 +11,7 @@ class ParticleFilter:
     def __init__(self, t):
         self.dt = t
         self.R = np.diag([params.sigma_r**2, params.sigma_theta**2])
-        self.lm_filters = [[EKF(params.dt) for i in range(params.num_lms)] for i in range(params.M)]  #List of lists. Inside list is EKF for each LM. Outer list is each particle
+        self.lm_filters = [[EKF(params.dt, i) for i in range(params.num_lms)] for i in range(params.M)]  #List of lists. Inside list is EKF for each LM. Outer list is each particle
 
     def propagateState(self, state, v, w):
         theta = state[2]
@@ -76,6 +76,8 @@ class ParticleFilter:
                 if not self.lm_filters[i][lm].found:
                     self.lm_filters[i][lm].found = True
                     #Initialize filter
+                    self.lm_filters[i][lm].initialize(z[:,j], Chi[:,i])
+                    w[i] = 1.0 / len(w) # Is this right? Do I reinitialize the weight if a new LM is found?
         return Chi, w
 
     def lowVarianceSampling(self, Chi, w):  # May need to edit this to resample kalman filters also!!

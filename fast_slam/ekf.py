@@ -41,27 +41,15 @@ class EKF:
 
         return z_hat, H
 
-    def update(self, mu, z, v, w):
-        for i in range(z.shape[1]):
-            lm = params.lms[:,i]
-            ds = lm - self.mu[0:2]
+    def update(self, z, pose):
+        z_hat, H = self.getExpectedMeasurement(z, pose) #Verify that this is the correct H to use
 
-            r = np.sqrt(ds @ ds)
-            phi = np.arctan2(ds[1], ds[0]) - self.mu[2] 
-            phi = unwrap(phi)
-            z_hat = np.array([r, phi])
+        S = H @ self.Sigma @ H.T + self.Q   #Innovation Covariance
+        K = self.Sigma @ H.T @ np.linalg.inv(S)
 
-            # I believe that H changes for this
-            H = np.array([[-(lm[0] - self.mu[0])/r, -(lm[1] - self.mu[1])/r, 0],
-                          [(lm[1] - self.mu[1])/r**2, -(lm[0] - self.mu[0])/r**2, -1]])
+        innov = z - z_hat
+        innov[1] = unwrap(innov[1])
+        self.mu = self.mu + K @ (innov) 
+        self.Sigma = (np.eye(2) - K @ H) @ self.Sigma
 
-            S = H @ self.Sigma @ H.T + self.Q
-            K = self.Sigma @ H.T @ np.linalg.inv(S)
-
-            innov = z[:,i] - z_hat
-            innov[1] = unwrap(innov[1])
-            self.mu = self.mu + K @ (innov) 
-            self.mu[2] = unwrap(self.mu[2])
-            self.Sigma = (np.eye(3) - K @ H) @ self.Sigma
-
-        self.mu[2] = unwrap(self.mu[2])
+        return S, innov

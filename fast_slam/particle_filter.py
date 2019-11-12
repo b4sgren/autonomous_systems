@@ -77,7 +77,9 @@ class ParticleFilter:
                     self.lm_filters[i][lm].found = True
                     #Initialize filter
                     self.lm_filters[i][lm].initialize(z[:,j], Chi[:,i])
-                    w[i] = 1.0 / len(w) # Is this right? Do I reinitialize the weight if a new LM is found?
+                    w[i] = 1.0 / len(w) # Is this right? Do I reinitialize the weight if a new LM is found? Probably not
+                S, innov = self.lm_filters[i][lm].update(z[:,j], Chi[:,i]) # S is innovation covariance
+                w[i] *= np.linalg.det(2 * np.pi * S)**(-0.5) * np.exp(-0.5 * (innov.T @ np.linalg.inv(S) @ innov))  #Is multiplying itself by the probability correct
         return Chi, w
 
     def lowVarianceSampling(self, Chi, w):  # May need to edit this to resample kalman filters also!!

@@ -50,25 +50,6 @@ class ParticleFilter:
         temp[2] = unwrap(temp[2])
         return temp
 
-    def getExpectedMeasurements(self, x): #Can I vectorize this function to get z for all LM's for every particle
-        #Currently vectorized for all LM's for a single particle
-        xy = x[0:2]
-        ds = params.lms - xy.reshape((2,1))
-
-        r = np.linalg.norm(ds, axis=0)
-        psi = np.arctan2(ds[1,:], ds[0,:]) - x[2]
-        psi = unwrap(psi)
-
-        return np.vstack((r, psi))
-
-    def getProbability(self, e, Sigma):
-        e[1] = unwrap(e[1])
-        p = 1.0
-        pr = 1.0/np.sqrt(2*np.pi*Sigma[0,0]) * np.exp(-0.5 * e[0,:]**2/Sigma[0,0])
-        p_psi = 1.0/np.sqrt(2 * np.pi * Sigma[1,1]) * np.exp(-0.5 * e[1,:]**2/Sigma[1,1])
-        p = np.prod(pr * p_psi)
-        return p
-
     def measurement_update(self, Chi, w, z, ind):
         for i in range(params.M): # For each particle
             for j in range(ind.size): # For each LM

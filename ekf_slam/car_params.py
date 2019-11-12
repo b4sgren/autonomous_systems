@@ -14,11 +14,11 @@ alpha4 = 0.1
 # Sensor noise params
 sigma_r = 0.1 * 1 #m
 sigma_theta = 0.05 * 1 #rad
-fov = np.deg2rad(90/2.0) #Radians to each side
+fov = np.deg2rad(180/2.0) #Radians to each side
 
 #landmark locations
 gen_lms = True 
-num_lms = 40
+num_lms = 20
 if gen_lms:
     lms = np.random.uniform(low=-15.0, high=15.0, size=(2, num_lms))
 else:

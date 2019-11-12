@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from car_animation import CarAnimation
 import car_params as params
-from particle_filter import ParticleFilter
-from particle_filter import unwrap
+from particle_filter import ParticleFilter, unwrap
 from ekf import EKF
 
 def generateVelocities(t):
@@ -13,14 +12,20 @@ def generateVelocities(t):
     return v, w
 
 def getMeasurements(state): #Will need to change if using not 360 deg vision
-    ds = params.lms - state[0:2].reshape((2,1))
-    r = np.sqrt(np.sum(ds**2, axis=0)) + np.random.normal(0, params.sigma_r, size=(params.lms.shape[1]))
-    theta = (np.arctan2(ds[1,:], ds[0,:]) - state[2]) + np.random.normal(0, params.sigma_theta, size=(params.lms.shape[1]))
-    theta = unwrap(theta)
+    z = np.zeros_like(params.lms, dtype=float)
+    
+    ds = params.lms - state[0:2].reshape(2,1)
+    r = np.sqrt(np.sum(ds**2, axis=0))
+    theta = np.arctan2(ds[1], ds[0]) - state[2]
 
-    z = np.array([[r.squeeze()], [theta.squeeze()]]).reshape((2,3))
+    z[0] = r + np.random.normal(0, params.sigma_r, size=r.size) #Measurement noise seems to be what is making everything do really bad
+    z[1] = theta + np.random.normal(0, params.sigma_theta, size=theta.size)
+    z[1] = unwrap(z[1])
 
-    return z
+    ind = np.argwhere(np.abs(z[1]) < params.fov)
+    z = z[:, ind][:,:,0]
+
+    return z, ind.squeeze()
 
 def recoverMeanAndCovar(Chi):
         mu = np.mean(Chi, axis=1)
@@ -49,71 +54,71 @@ if __name__ == "__main__":
     state = np.zeros(3)
     dead_reckon = np.zeros(3)
     Chi = np.zeros((3, params.M))
-    lm_filters = [[EKF(params.dt) for i in range(params.num_lms)] for i in range(params.M)]  #List of lists. Inside list is EKF for each LM. Outer list is each particle
+    # lm_filters = [[EKF(params.dt) for i in range(params.num_lms)] for i in range(params.M)]  #List of lists. Inside list is EKF for each LM. Outer list is each particle
     wp= np.ones(params.M)/params.M  #Evenly distributed weights
     mu = np.mean(Chi, axis=1)
     Sigma = np.cov(mu.reshape((3,1)) - Chi)
 
     for i in range(t.size):
         #stuff for plotting
-        # x_hist.append(state)
-        # mu_hist.append(mu)
-        # err = state - mu
-        # err[2] = unwrap(err[2])
-        # err_hist.append(err)
-        # x_covar_hist.append(Sigma[0,0])
-        # y_covar_hist.append(Sigma[1,1])
-        # psi_covar_hist.append(Sigma[2,2])
+        x_hist.append(state)
+        mu_hist.append(mu)
+        err = state - mu
+        err[2] = unwrap(err[2])
+        err_hist.append(err)
+        x_covar_hist.append(Sigma[0,0])
+        y_covar_hist.append(Sigma[1,1])
+        psi_covar_hist.append(Sigma[2,2])
 
         Car.animateCar(state, mu, dead_reckon, Chi)
         plt.pause(0.02)
 
         state = filter.propagateState(state, v[i], w[i])
-        zt = getMeasurements(state)
-        Chi = filter.update(Chi, zt, vc[i], wc[i])
+        zt, ind = getMeasurements(state)
+        Chi = filter.update(Chi, wp, zt, ind, vc[i], wc[i])
         mu, Sigma = recoverMeanAndCovar(Chi)
         dead_reckon = filter.propagateState(dead_reckon, vc[i], wc[i])
 
-    # fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
-    # x_hist = np.array(x_hist).T
-    # mu_hist = np.array(mu_hist).T
-    # ax1[0].plot(t, x_hist[0,:], label="Truth")
-    # ax1[0].plot(t, mu_hist[0,:], label="Est")
-    # ax1[0].set_ylabel("x (m)")
-    # ax1[0].legend()
-    # ax1[1].plot(t, x_hist[1,:], label="Truth")
-    # ax1[1].plot(t, mu_hist[1,:], label="Est")
-    # ax1[1].set_ylabel("y (m)")
-    # ax1[1].legend()
-    # ax1[2].plot(t, x_hist[2,:], label="Truth")
-    # ax1[2].plot(t, mu_hist[2,:], label="Est")
-    # ax1[2].set_xlabel("Time (s)")
-    # ax1[2].set_ylabel("$\psi$ (rad)")
-    # ax1[2].legend()
-    # ax1[0].set_title("Estimate vs Truth")
+    fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
+    x_hist = np.array(x_hist).T
+    mu_hist = np.array(mu_hist).T
+    ax1[0].plot(t, x_hist[0,:], label="Truth")
+    ax1[0].plot(t, mu_hist[0,:], label="Est")
+    ax1[0].set_ylabel("x (m)")
+    ax1[0].legend()
+    ax1[1].plot(t, x_hist[1,:], label="Truth")
+    ax1[1].plot(t, mu_hist[1,:], label="Est")
+    ax1[1].set_ylabel("y (m)")
+    ax1[1].legend()
+    ax1[2].plot(t, x_hist[2,:], label="Truth")
+    ax1[2].plot(t, mu_hist[2,:], label="Est")
+    ax1[2].set_xlabel("Time (s)")
+    ax1[2].set_ylabel("$\psi$ (rad)")
+    ax1[2].legend()
+    ax1[0].set_title("Estimate vs Truth")
 
-    # fig2, ax2 = plt.subplots(nrows=3, ncols=1, sharex=True)
-    # err_hist = np.array(err_hist).T
-    # x_err_bnd = np.sqrt(np.array(x_covar_hist)) * 2
-    # y_err_bnd = np.sqrt(np.array(y_covar_hist)) * 2
-    # psi_err_bnd = np.sqrt(np.array(psi_covar_hist)) * 2
-    # ax2[0].plot(t, err_hist[0,:], label="Err")
-    # ax2[0].plot(t, x_err_bnd, 'r', label="2 $\sigma$")
-    # ax2[0].plot(t, -x_err_bnd, 'r')
-    # ax2[0].set_ylabel("Err (m)")
-    # ax2[0].legend()
-    # ax2[1].plot(t, err_hist[1,:], label="Err")
-    # ax2[1].plot(t, y_err_bnd, 'r', label="2 $\sigma$")
-    # ax2[1].plot(t, -y_err_bnd, 'r')
-    # ax2[1].set_ylabel("Err (m)")
-    # ax2[1].legend()
-    # ax2[2].plot(t, err_hist[2,:], label="Err")
-    # ax2[2].plot(t, psi_err_bnd, 'r', label="2 $\sigma$")
-    # ax2[2].plot(t, -psi_err_bnd, 'r')
-    # ax2[2].set_ylabel("Err (m)")
-    # ax2[2].set_xlabel("Time (s)")
-    # ax2[2].legend()
-    # ax2[0].set_title("Error vs Time")
+    fig2, ax2 = plt.subplots(nrows=3, ncols=1, sharex=True)
+    err_hist = np.array(err_hist).T
+    x_err_bnd = np.sqrt(np.array(x_covar_hist)) * 2
+    y_err_bnd = np.sqrt(np.array(y_covar_hist)) * 2
+    psi_err_bnd = np.sqrt(np.array(psi_covar_hist)) * 2
+    ax2[0].plot(t, err_hist[0,:], label="Err")
+    ax2[0].plot(t, x_err_bnd, 'r', label="2 $\sigma$")
+    ax2[0].plot(t, -x_err_bnd, 'r')
+    ax2[0].set_ylabel("Err (m)")
+    ax2[0].legend()
+    ax2[1].plot(t, err_hist[1,:], label="Err")
+    ax2[1].plot(t, y_err_bnd, 'r', label="2 $\sigma$")
+    ax2[1].plot(t, -y_err_bnd, 'r')
+    ax2[1].set_ylabel("Err (m)")
+    ax2[1].legend()
+    ax2[2].plot(t, err_hist[2,:], label="Err")
+    ax2[2].plot(t, psi_err_bnd, 'r', label="2 $\sigma$")
+    ax2[2].plot(t, -psi_err_bnd, 'r')
+    ax2[2].set_ylabel("Err (m)")
+    ax2[2].set_xlabel("Time (s)")
+    ax2[2].legend()
+    ax2[0].set_title("Error vs Time")
 
     plt.show()
     print("Finished")

@@ -1,6 +1,7 @@
 import numpy as np
 import car_params as params
 import scipy as sp
+from ekf import EKF
 
 def unwrap(phi):
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
@@ -10,6 +11,7 @@ class ParticleFilter:
     def __init__(self, t):
         self.dt = t
         self.R = np.diag([params.sigma_r**2, params.sigma_theta**2])
+        self.lm_filters = [[EKF(params.dt) for i in range(params.num_lms)] for i in range(params.M)]  #List of lists. Inside list is EKF for each LM. Outer list is each particle
 
     def propagateState(self, state, v, w):
         theta = state[2]
@@ -48,7 +50,8 @@ class ParticleFilter:
         temp[2] = unwrap(temp[2])
         return temp
 
-    def getExpectedMeasurements(self, x):
+    def getExpectedMeasurements(self, x): #Can I vectorize this function to get z for all LM's for every particle
+        #Currently vectorized for all LM's for a single particle
         xy = x[0:2]
         ds = params.lms - xy.reshape((2,1))
 
@@ -66,16 +69,16 @@ class ParticleFilter:
         p = np.prod(pr * p_psi)
         return p
 
-    def measurement_update(self, Chi, z):
-        w = np.zeros(Chi.shape[1])
-        for i in range(params.M): # See if I can vectorize this later
-            #weight is the product of the probabilities for each measurement
-            z_hat = self.getExpectedMeasurements(Chi[:,i])
-            w[i] = self.getProbability(z-z_hat, self.R)
-        w = w/np.sum(w) #make sure they sum to one
+    def measurement_update(self, Chi, w, z, ind):
+        for i in range(params.M): # For each particle
+            for j in range(ind.size): # For each LM
+                lm = ind[j]
+                if not self.lm_filters[i][lm].found:
+                    self.lm_filters[i][lm].found = True
+                    #Initialize filter
         return Chi, w
 
-    def lowVarianceSampling(self, Chi, w):
+    def lowVarianceSampling(self, Chi, w):  # May need to edit this to resample kalman filters also!!
         num_pts = Chi.shape[1]
         num_pts_inv = 1 / num_pts
 
@@ -98,20 +101,12 @@ class ParticleFilter:
         if uniq/params.M < 0.1:
             Q = P/((params.M * uniq) ** (1/3)) #3 is size of the state space
             chi_pts_ret += Q @ np.random.randn(*chi_pts_ret.shape)
+
         return chi_pts_ret
 
-    def recoverMeanAndCovar(self, Chi, w):
-        mu = np.mean(Chi, axis=1)
-        temp_x = Chi - mu.reshape((3,1))
-        temp_x[2] = unwrap(temp_x[2])
-        Sigma = np.cov(temp_x)
-
-        return mu, Sigma
-
-    def update(self, Chi, z, v, w):
+    def update(self, Chi, wc, z, ind, v, w):
         Chi = self.propagateParticles(Chi, v, w)
-        # Chi, wc = self.measurement_update(Chi, z)
+        Chi, wc = self.measurement_update(Chi, wc, z, ind)
         # Chi = self.lowVarianceSampling(Chi, wc)
-        # mu, Sigma = self.recoverMeanAndCovar(Chi, wc)
 
         return Chi

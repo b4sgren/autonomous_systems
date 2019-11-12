@@ -1,6 +1,9 @@
 import numpy as np
 import car_params as params
-from particle_filter import unwrap
+
+def unwrap(phi):
+    phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
+    return phi
 
 class EKF:
     def __init__(self, t):

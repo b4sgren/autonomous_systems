@@ -19,7 +19,7 @@ class EKF:
         theta = z.item(1)
         
         # Initialize the pose
-        phi = pose[2]
+        phi = unwrap(pose[2])
         temp = np.array([np.cos(theta + phi), np.sin(theta + phi)])
         self.mu = pose[:2] + r * temp
 
@@ -32,7 +32,7 @@ class EKF:
         ds = self.mu - pose[:2]
         r = np.sqrt(ds @ ds)
         q = r * r 
-        theta = unwrap(np.arctan2(ds[1], ds[0]) - pose[2])
+        theta = unwrap(np.arctan2(ds[1], ds[0]) - unwrap(pose[2]))
 
         z_hat = np.array([r, theta])
 

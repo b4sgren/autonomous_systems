@@ -79,6 +79,7 @@ class ParticleFilter:
         wght_idx = np.argmax(diff_truth, axis=1)
 
         chi_pts_ret = Chi[:,wght_idx]
+        self.lm_filters = list(np.array(self.lm_filters)[wght_idx])
 
         #Combating particle deprivation
         P = np.cov(Chi)
@@ -92,6 +93,6 @@ class ParticleFilter:
     def update(self, Chi, wc, z, ind, v, w):
         Chi = self.propagateParticles(Chi, v, w)
         Chi, wc = self.measurement_update(Chi, wc, z, ind)
-        # Chi = self.lowVarianceSampling(Chi, wc)
+        Chi = self.lowVarianceSampling(Chi, wc)
 
         return Chi

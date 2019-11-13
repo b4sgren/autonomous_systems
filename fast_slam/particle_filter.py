@@ -46,9 +46,7 @@ class ParticleFilter:
         A = np.array([-v/w * st + v/w * stw,
                       v/w * ct - v/w * ctw,
                       w * self.dt])
-        temp = Chi + A
-        # temp[2] = unwrap(temp[2])
-        return temp
+        return Chi + A
 
     def measurement_update(self, Chi, w, z, ind):
         for i in range(params.M): # For each particle
@@ -56,9 +54,8 @@ class ParticleFilter:
                 lm = ind[j]
                 if not self.lm_filters[i][lm].found:
                     self.lm_filters[i][lm].found = True
-                    #Initialize filter
+                    #Initialize filter for this LM
                     self.lm_filters[i][lm].initialize(z[:,j], Chi[:,i])
-                    w[i] = 1.0 / len(w) # Is this right? Do I reinitialize the weight if a new LM is found? Probably not
                 S, innov = self.lm_filters[i][lm].update(z[:,j], Chi[:,i]) # S is innovation covariance
                 w[i] *= np.linalg.det(2 * np.pi * S)**(-0.5) * np.exp(-0.5 * (innov.T @ np.linalg.inv(S) @ innov))  #Is multiplying itself by the probability correct
         return Chi, w
@@ -95,4 +92,4 @@ class ParticleFilter:
         Chi, wc = self.measurement_update(Chi, wc, z, ind)
         Chi = self.lowVarianceSampling(Chi, wc)
 
-        return Chi, np.argmax(wc)
+        return Chi, np.argmax(wc), np.ones(params.M)/params.M #weights are all set to be equal after resampling

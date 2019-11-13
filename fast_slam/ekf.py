@@ -42,7 +42,7 @@ class EKF:
         return z_hat, H
 
     def update(self, z, pose):
-        z_hat, H = self.getExpectedMeasurement(z, pose) #Verify that this is the correct H to use
+        z_hat, H = self.getExpectedMeasurement(z, pose) 
 
         S = H @ self.Sigma @ H.T + self.Q   #Innovation Covariance
         K = self.Sigma @ H.T @ np.linalg.inv(S)

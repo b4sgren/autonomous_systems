@@ -51,7 +51,7 @@ class ParticleFilter:
     def measurement_update(self, Chi, w, z, ind):
         for i in range(params.M): # For each particle
             for j in range(ind.size): # For each LM
-                lm = ind[j]
+                lm = ind.item(j)
                 if not self.lm_filters[i][lm].found:
                     self.lm_filters[i][lm].found = True
                     #Initialize filter for this LM

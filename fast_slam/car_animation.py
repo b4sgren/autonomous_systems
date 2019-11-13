@@ -9,6 +9,7 @@ class CarAnimation:
         self.flagInit = True
         self.fig, self.ax = plt.subplots() #creates the subplots
         self.handle = []
+        self.ellipse_handle = []
 
         self.line = np.array([[0, 0.5], [0, 0]]) #car initially facing north
         self.dr_x = []
@@ -25,10 +26,11 @@ class CarAnimation:
         self.pts_x = []
         self.pts_y = []
 
-    def animateCar(self, state, mu, dr, Chi):
+    def animateCar(self, state, mu, dr, Chi, lm_filters):
         self.drawCar(state)
         self.drawLine(state)
         self.drawStates(state, mu, dr)
+        self.drawLandmakrs(lm_filters)
         self.drawPoints(Chi)
         self.flagInit = False
 
@@ -89,3 +91,35 @@ class CarAnimation:
 
        self.ax2.cla()
        self.ax2.scatter(self.pts_x, self.pts_y, marker='x', color='k')
+    
+    def drawLandmakrs(self, lm_filters):
+        num_lms = params.num_lms
+
+        lm = []
+        Sigmas = []
+        for i, ekf in enumerate(lm_filters):
+            lm.append(ekf.mu)
+            Sigmas.append(ekf.Sigma)
+        lm = np.array(lm).T
+
+        if self.flagInit:
+            handle = self.ax.scatter(lm[0,:], lm[1,:], color='g', marker='x')
+            self.handle.append(handle)
+            for i, covar in enumerate(Sigmas):
+                U, S, VH = np.linalg.svd(covar)
+                C = U * np.sqrt(S) *2
+                theta = np.linspace(0, 2*np.pi, 100)
+                circle = np.vstack((np.cos(theta), np.sin(theta)))
+                ellipse = C @ circle + lm[:,i].reshape((2,1))
+                self.ellipse_handle.append(Line2D(ellipse[0,:], ellipse[1,:], color='r'))
+                self.ax.add_line(self.ellipse_handle[i])
+        else:
+            self.handle[5].set_offsets(lm.T)
+            for i, covar in enumerate(Sigmas):
+                U, S, VH = np.linalg.svd(covar)
+                C = U * np.sqrt(S) * 2
+                theta = np.linspace(0, 2*np.pi, 100)
+                circle = np.vstack((np.cos(theta), np.sin(theta)))
+                ellipse = C @ circle + lm[:,i].reshape((2,1))
+                self.ellipse_handle[i].set_xdata(ellipse[0,:])
+                self.ellipse_handle[i].set_ydata(ellipse[1,:])

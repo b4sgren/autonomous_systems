@@ -27,7 +27,7 @@ def getMeasurements(state): #Will need to change if using not 360 deg vision
 
     return z, ind.squeeze()
 
-def recoverMeanAndCovar(Chi):
+def recoverMeanAndCovar(Chi):   # I think there is an issue recovering the mean around theta = pi b/c average between -pi and pi is 0
         mu = np.mean(Chi, axis=1)
         temp_x = Chi - mu.reshape((3,1))
         temp_x[2] = unwrap(temp_x[2])
@@ -54,10 +54,10 @@ if __name__ == "__main__":
     state = np.zeros(3)
     dead_reckon = np.zeros(3)
     Chi = np.zeros((3, params.M))
-    # lm_filters = [[EKF(params.dt) for i in range(params.num_lms)] for i in range(params.M)]  #List of lists. Inside list is EKF for each LM. Outer list is each particle
     wp= np.ones(params.M)/params.M  #Evenly distributed weights
     mu = np.mean(Chi, axis=1)
     Sigma = np.cov(mu.reshape((3,1)) - Chi)
+    j = 0 #Index of the best particle
 
     for i in range(t.size):
         #stuff for plotting
@@ -70,13 +70,14 @@ if __name__ == "__main__":
         y_covar_hist.append(Sigma[1,1])
         psi_covar_hist.append(Sigma[2,2])
 
-        Car.animateCar(state, mu, dead_reckon, Chi)
+        Car.animateCar(state, mu, dead_reckon, Chi, filter.lm_filters[j])
         plt.pause(0.02)
 
         state = filter.propagateState(state, v[i], w[i])
         zt, ind = getMeasurements(state)
-        Chi = filter.update(Chi, wp, zt, ind, vc[i], wc[i])
+        Chi, j = filter.update(Chi, wp, zt, ind, vc[i], wc[i])
         mu, Sigma = recoverMeanAndCovar(Chi)
+        mu = Chi[:,j] #Use the mean of the best particle
         dead_reckon = filter.propagateState(dead_reckon, vc[i], wc[i])
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)

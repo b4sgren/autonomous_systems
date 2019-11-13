@@ -95,4 +95,4 @@ class ParticleFilter:
         Chi, wc = self.measurement_update(Chi, wc, z, ind)
         Chi = self.lowVarianceSampling(Chi, wc)
 
-        return Chi
+        return Chi, np.argmax(wc)

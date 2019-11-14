@@ -7,7 +7,7 @@ from ekf import EKF
 
 def generateVelocities(t):
     v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
-    w = -0.2 + 1 * np.cos(2 * np.pi * 0.2 * t)
+    w = -0.2 + .1 * np.cos(2 * np.pi * 0.2 * t)
 
     return v, w
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     state = np.zeros(3)
     dead_reckon = np.zeros(3)
     Chi = np.zeros((3, params.M))
-    wp= np.ones(params.M)/params.M  #Evenly distributed weights
+    wp= np.ones(params.M)  #Evenly distributed weights
     mu = np.mean(Chi, axis=1)
     Sigma = np.cov(mu.reshape((3,1)) - Chi)
     j = 0 #Index of the best particle
@@ -80,6 +80,7 @@ if __name__ == "__main__":
         mu, Sigma = recoverMeanAndCovar(Chi)
         mu = Chi[:,j] #Use the mean of the best particle
         mu[2] = unwrap(mu[2])
+        wp = np.ones_like(wp)
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     x_hist = np.array(x_hist).T

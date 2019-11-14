@@ -17,7 +17,7 @@ M = 100
 #landmark locations
 gen_lms = True
 if gen_lms:
-    num_lms = 20
+    num_lms = 8
 else:
     num_lms = 3
 if gen_lms:

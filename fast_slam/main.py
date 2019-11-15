@@ -6,14 +6,17 @@ from particle_filter import ParticleFilter, unwrap
 from ekf import EKF
 
 def generateVelocities(t):
-    v = 1 + .5 * np.cos(2 * np.pi * 0.2 * t)
-    w = -0.2 + .1 * np.cos(2 * np.pi * 0.2 * t)
+    v = 1.5 + .1 * np.cos(2 * np.pi * 0.2 * t)
+    w = -0.4 + .2 * np.cos(2 * np.pi * 0.6 * t)
+
+    # v = 1.0 + .5 * np.cos(2 * np.pi * 0.2 * t)
+    # w = -0.2 + 2 * np.cos(2 * np.pi * 0.6 * t)
 
     return v, w
 
 def getMeasurements(state): #Will need to change if using not 360 deg vision
     z = np.zeros_like(params.lms, dtype=float)
-    
+
     ds = params.lms - state[0:2].reshape(2,1)
     r = np.sqrt(np.sum(ds**2, axis=0))
     theta = np.arctan2(ds[1], ds[0]) - state[2]
@@ -80,7 +83,6 @@ if __name__ == "__main__":
         mu, Sigma = recoverMeanAndCovar(Chi)
         mu = Chi[:,j] #Use the mean of the best particle
         mu[2] = unwrap(mu[2])
-        wp = np.ones_like(wp)
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)
     x_hist = np.array(x_hist).T

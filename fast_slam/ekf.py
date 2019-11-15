@@ -37,7 +37,7 @@ class EKF:
         z_hat = np.array([r, theta])
 
         #Jacobian
-        H = np.array([[ds[0]/r, ds[1]/r], [-ds[1]/q, ds[0]/q]]) # Is this the right jacobian or is it the negative of this
+        H = np.array([[ds[0]/r, ds[1]/r], [-ds[1]/q, ds[0]/q]])
 
         return z_hat, H
 

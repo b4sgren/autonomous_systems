@@ -57,10 +57,10 @@ class ParticleFilter:
                     #Initialize filter for this LM
                     self.lm_filters[i][lm].initialize(z[:,j], Chi[:,i])
                 S, innov = self.lm_filters[i][lm].update(z[:,j], Chi[:,i]) # S is innovation covariance
-                w[i] *= np.linalg.det(2 * np.pi * S)**(-0.5) * np.exp(-0.5 * (innov.T @ np.linalg.inv(S) @ innov))  #Is multiplying itself by the probability correct
+                w[i] *= 1.0/np.sqrt(np.linalg.det(2 * np.pi * S)) * np.exp(-0.5 * (innov.T @ np.linalg.inv(S) @ innov))
         return Chi, w
 
-    def lowVarianceSampling(self, Chi, w):  # May need to edit this to resample kalman filters also!!
+    def lowVarianceSampling(self, Chi, w):
         num_pts = Chi.shape[1]
         num_pts_inv = 1 / num_pts
 
@@ -92,4 +92,4 @@ class ParticleFilter:
         Chi, wc = self.measurement_update(Chi, wc, z, ind)
         Chi = self.lowVarianceSampling(Chi, wc)
 
-        return Chi, np.argmax(wc), np.ones(params.M)/params.M #weights are all set to be equal after resampling
+        return Chi, np.argmax(wc), np.ones(params.M) #weights are all set to be equal after resampling

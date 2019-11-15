@@ -15,10 +15,10 @@ fov = np.deg2rad(360/2.0) #Radians to each side
 M = 100
 
 #landmark locations
-gen_lms = True
+gen_lms = False
 if gen_lms:
-    num_lms = 12 # per quadrant
-    n = int(num_lms/4)
+    num_lms = 12 
+    n = int(num_lms/4) # per quadrant
 else:
     num_lms = 3
 if gen_lms:

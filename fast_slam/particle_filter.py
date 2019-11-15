@@ -32,8 +32,8 @@ class ParticleFilter:
         #Add noise to velocities to separate the particles
         a1 = params.alpha1
         a2 = params.alpha2
-        a3 = params.alpha3
-        a4 = params.alpha4
+        a3 = params.alpha3 
+        a4 = params.alpha4 
 
         v = vc + np.sqrt(a1 * vc**2 + a2 * wc**2) * np.random.randn(params.M)
         w = wc + np.sqrt(a3 * vc**2 + a4 * wc**2) * np.random.randn(params.M)
@@ -59,6 +59,7 @@ class ParticleFilter:
                     self.lm_filters[i][lm].initialize(z[:,j], Chi[:,i])
                 S, innov = self.lm_filters[i][lm].update(z[:,j], Chi[:,i]) # S is innovation covariance
                 w[i] *= 1.0/np.sqrt(np.linalg.det(2 * np.pi * S)) * np.exp(-0.5 * (innov.T @ np.linalg.inv(S) @ innov))
+        w = w / np.sum(w)
         return Chi, w
 
     def lowVarianceSampling(self, Chi, w):

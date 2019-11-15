@@ -9,13 +9,13 @@ alpha4 = 0.1
 # Sensor noise params
 sigma_r = 0.1 #m
 sigma_theta = 0.05 #rad
-fov = np.deg2rad(360/2.0) #Radians to each side
+fov = np.deg2rad(45/2.0) #Radians to each side
 
 #number of particles
 M = 100
 
 #landmark locations
-gen_lms = False
+gen_lms = True
 if gen_lms:
     num_lms = 12 
     n = int(num_lms/4) # per quadrant

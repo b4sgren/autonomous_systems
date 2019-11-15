@@ -78,7 +78,6 @@ if __name__ == "__main__":
         zt, ind = getMeasurements(state)
         Chi, j, wp = filter.update(Chi, wp, zt, ind, vc[i], wc[i])
         mu, Sigma = recoverMeanAndCovar(Chi)
-        mu = Chi[:,j] #Use the mean of the best particle
         mu[2] = unwrap(mu[2])
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1, sharex=True)

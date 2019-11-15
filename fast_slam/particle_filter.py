@@ -2,6 +2,7 @@ import numpy as np
 import car_params as params
 import scipy as sp
 from ekf import EKF
+from copy import deepcopy
 
 def unwrap(phi):
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
@@ -76,7 +77,8 @@ class ParticleFilter:
         wght_idx = np.argmax(diff_truth, axis=1)
 
         chi_pts_ret = Chi[:,wght_idx]
-        self.lm_filters = list(np.array(self.lm_filters)[wght_idx])
+        # self.lm_filters = list(np.array(self.lm_filters)[wght_idx])
+        self.lm_filters = [deepcopy(self.lm_filters[wght_idx[i]]) for i in range(wght_idx.size)] #Deep copy so that covariance doesn't drop super fast
 
         #Combating particle deprivation
         P = np.cov(Chi)

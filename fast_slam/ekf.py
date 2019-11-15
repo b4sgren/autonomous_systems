@@ -50,6 +50,6 @@ class EKF:
         innov = z - z_hat
         innov[1] = unwrap(innov[1])
         self.mu = self.mu + K @ (innov) 
-        self.Sigma = (np.eye(2) - K @ H) @ self.Sigma
+        self.Sigma = (np.eye(2) - K @ H) @ self.Sigma #Should sigma decrease here on the initialization update
 
         return S, innov

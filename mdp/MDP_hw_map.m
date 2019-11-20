@@ -33,11 +33,13 @@ obs2(45:65,10:45) = 1;
 obs3(43:92,75:85) = 1;
 obs3(70:80,50:75) = 1;
 
+obs = obs1 + obs2 + obs3;
+
 % The goal states
 goal(75:80,96:98) = 1;
 
 % Put walls and obstacles into map
-map = walls + obs1 + obs2 + obs3 + goal;
+map = walls + obs + goal;
 
 % Plot map
 % Sort through the cells to determine the x-y locations of occupied cells
@@ -56,6 +58,7 @@ ym = [];
 figure(1); clf;
 plot(xm,ym,'.');
 axis([0 Np+1 0 Np+1]);
-axis('square'); 
+axis('square');
+save mdp_map map Mm Nm xm ym goal walls obs;
 
 

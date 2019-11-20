@@ -24,7 +24,7 @@ else:
                     [1, 0, 0, 0, 0, 1],
                     [1, 0, 0, 0, 0, 1],
                     [0, 1, 1, 1, 1, 0]])
-    goal = np.array([[0, 0, 0, 0, 0 0],
+    goal = np.array([[0, 0, 0, 0, 0, 0],
                     [0, 0, 0, 0, 1, 0],
                     [0, 0, 0, 0, -1, 0],
                     [0, 0, 0, 0, 0, 0],
@@ -40,3 +40,8 @@ else:
     ym = np.array(ym)
     x0 = 1 # Column in matrix
     y0 = 3 # row in matrix
+
+p_forward = 0.8
+p_left = 0.1
+p_right = 0.1
+gamma = 1.0

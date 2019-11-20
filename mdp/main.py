@@ -4,24 +4,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def drawArrows(ax, map, policy):
-    arrow_len = 0.75
-    arrow_x0 = .125
+    arrow_len = 0.55
+    x0 = .375
+    w = 0.25
+    l = 0.15
     for i in range(1, params.r-1):
         for j in range(1, params.c-1):
             if np.isnan(policy[i,j]):
                 continue 
             elif policy[i,j] == 0: # North
-                debug = 1
+                plt.arrow(j, i + x0, 0, -arrow_len, head_width=w, head_length=l)
             elif policy[i,j] == 1: #South
-                debug = 1
+                plt.arrow(j, i - x0, 0, len, arrow_len, head_width=w, head_length=l)
             elif policy[i,j] == 2: #East
-                debug = 1
+                plt.arrow(j-x0,i, arrow_len, 0, head_width=w, head_length=l)
             else: #West
-                debug = 1
+                plt.arrow(j + x0, i, -arrow_len, 0, head_width=w, head_length=l)
     return ax
             
-
-
 if __name__ == "__main__":
     planner = MDPPlanner()
 

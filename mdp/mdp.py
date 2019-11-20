@@ -3,18 +3,60 @@ import car_params as params
 
 class MDPPlanner:
     def __init__(self):
-        self.map = params.map
-        self.policy = np.zeros_like(self.map) #Will be filled with a number deterining the direction of the arrow
+        self.map = np.zeros_like(params.map) # Will need to fill in walls and obstacles at the end
+        self.policy = np.ones_like(self.map) * np.nan #Will be filled with a number deterining the direction of the arrow
         self.gamma = params.gamma
         self.pf = params.p_forward
         self.pr = params.p_right
         self.pl = params.p_left
     
+    def correcStaticCells(self):
+        idx_walls = np.argwhere(params.walls < 0)
+        idx_goal = np.argwhere(params.goal > 0)
+        idx_pit = np.argwhere(params.goal < 0)
+        idx_obs = np.argwhere(params.obs < 0)
+
+        self.map[idx_walls[:,0], idx_walls[:,1]] = params.r_walls
+        self.map[idx_goal[:,0], idx_goal[:,1]] = params.r_goal 
+        if not params.read_file:
+            self.map[idx_pit[:,0], idx_pit[:,1]] = - params.r_goal 
+        self.map[idx_obs[:,0], idx_obs[:,1]] = params.r_obs
+        self.map = np.flip(self.map, axis=0)
+        self.policy = np.flip(self.policy, axis=0)
+    
     def createPolicy(self):
-        idx = np.argwhere(self.map == 0)
-        self.map[idx[0,:], idx[1,:]] = params.r_else
+        idx = np.argwhere(params.map == 0)
+        # self.map[idx[:,0], idx[:,1]] = params.r_else
         r = np.zeros_like(self.map)
-        r[idx[0,:], idx[1,:]] = params.r_else
+        r[idx[:,0], idx[:,1]] = params.r_else
+        diff = 1e6
+        epsilon = .001
+
+        while diff > epsilon:
+            temp_diff = []
+            for i in range(1,params.r-1):
+                for j in range(1,params.c-1):
+                   if r[i,j] == -2:
+                        V_north = self.pf * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1,j]) + \
+                                  self.pr * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
+                                  self.pl * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + r[i,j]
+                        V_south = self.pf * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + \
+                                  self.pr * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
+                                  self.pl * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + r[i,j]
+                        V_east = self.pf * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
+                                  self.pr * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1, j]) + \
+                                  self.pl * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + r[i,j]
+                        V_west = self.pf * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + \
+                                  self.pr * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + \
+                                  self.pl * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1, j]) + r[i,j]
+                        V = [V_north, V_south, V_east, V_west]
+                        max = np.max(V)
+                        argmax = np.argmax(V)
+                        self.policy[i, j] = argmax
+                        temp_diff.append(np.abs(self.map[i,j] - max))
+                        self.map[i,j] = max
+            diff = np.sum(temp_diff)
+        debug = 1
 
     def createPolicyVectorized(self):
         idx = np.argwhere(self.map == 0)

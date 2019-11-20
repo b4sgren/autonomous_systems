@@ -14,8 +14,6 @@ if read_file:
     goal = data['goal'] * r_goal
     walls = data['walls'] * r_walls
     map = data['map']
-    xm = data['xm']
-    ym = data['ym']
     x0 = 28 #Column in matrix
     y0 = 20 #Row in matrix
 else:
@@ -32,16 +30,8 @@ else:
                     [0, 0, 0, 0, 0, 0],
                     [0, 0, 0, 0, -1, 0],
                     [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 0]]) * r_walls # The -1 is the weighted error zone
+                    [0, 0, 0, 0, 0, 0]]) * r_goal # The -1 is the weighted error zone
     map = walls + obs + goal
-    xm = []
-    ym = []
-    for i in range(r):
-        for j in range(c):
-            xm.append(i)
-            ym.append(j)
-    xm = np.array(xm)
-    ym = np.array(ym)
     x0 = 1 # Column in matrix
     y0 = 3 # row in matrix
 

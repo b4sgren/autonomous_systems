@@ -12,25 +12,27 @@ def drawArrows(ax, map, policy):
         for j in range(1, params.c-1):
             if np.isnan(policy[i,j]):
                 continue 
-            elif policy[i,j] == 0: # North
+            elif policy[i,j] == 3: # North
                 plt.arrow(j, i + x0, 0, -arrow_len, head_width=w, head_length=l)
-            elif policy[i,j] == 1: #South
+            elif policy[i,j] == 2: #South
                 plt.arrow(j, i - x0, 0, arrow_len, head_width=w, head_length=l)
-            elif policy[i,j] == 2: #East
+            elif policy[i,j] == 0: #East
                 plt.arrow(j-x0, i, arrow_len, 0, head_width=w, head_length=l)
             else: #West
                 plt.arrow(j + x0, i, -arrow_len, 0, head_width=w, head_length=l)
     return ax
 
-def drawPath(ax, x, y, policy):
+def drawPath(ax, y, x, policy):
+    # x = params.c - x
+    # y = params.r - y
     while not np.isnan(policy[y,x]):
-        if policy[y,x] == 0: #North
+        if policy[y,x] == 3: #North
             plt.plot([x, x], [y, y-1], 'r')
             y -= 1
-        elif policy[y,x] == 1: #South
+        elif policy[y,x] == 2: #South
             plt.plot([x, x], [y, y+1], 'r')
             y += 1
-        elif policy[y,x] == 2: #East
+        elif policy[y,x] == 0: #East
             plt.plot([x, x+1], [y, y], 'r')
             x += 1
         else:

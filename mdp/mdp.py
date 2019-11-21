@@ -22,8 +22,8 @@ class MDPPlanner:
         if not params.read_file:
             self.map[idx_pit[:,0], idx_pit[:,1]] = - params.r_goal 
         self.map[idx_obs[:,0], idx_obs[:,1]] = params.r_obs
-        self.map = np.flip(self.map, axis=0)
-        self.policy = np.flip(self.policy, axis=0)
+        self.map = self.map.T #np.flip(self.map.T, axis=1)
+        self.policy = self.policy.T #np.flip(self.policy.T, axis=1)
     
     def createPolicy(self):
         idx = np.argwhere(params.map == 0)

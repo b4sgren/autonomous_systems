@@ -15,8 +15,8 @@ if read_file:
     walls = data['walls'] * r_walls
     map = walls + obs + goal
     # map = data['map']
-    x0 = 28 #Column in matrix
-    y0 = 20 #Row in matrix
+    x0 = 20 #Column in matrix
+    y0 = 28 #Row in matrix
 else:
     r = 5
     c = 6

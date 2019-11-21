@@ -21,6 +21,22 @@ def drawArrows(ax, map, policy):
             else: #West
                 plt.arrow(j + x0, i, -arrow_len, 0, head_width=w, head_length=l)
     return ax
+
+def drawPath(ax, x, y, policy):
+    while not np.isnan(policy[y,x]):
+        if policy[y,x] == 0: #North
+            plt.plot([x, x], [y, y-1], 'r')
+            y -= 1
+        elif policy[y,x] == 1: #South
+            plt.plot([x, x], [y, y+1], 'r')
+            y += 1
+        elif policy[y,x] == 2: #East
+            plt.plot([x, x+1], [y, y], 'r')
+            x += 1
+        else:
+            plt.plot([x, x-1], [y, y], 'r')
+            x -= 1
+    return ax
             
 if __name__ == "__main__":
     planner = MDPPlanner()
@@ -32,6 +48,7 @@ if __name__ == "__main__":
     plt.figure(1)
     ax = plt.imshow(planner.map * 255)
     ax = drawArrows(ax, planner.map, planner.policy)
+    ax = drawPath(ax, params.x0, params.y0, planner.policy)
     plt.colorbar()
 
     plt.show()

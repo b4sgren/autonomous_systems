@@ -1,19 +1,20 @@
 import numpy as np
 import scipy.io as sio
 
-read_file = False
+read_file = True
 r_obs = -5000
 r_goal = 1e6
 r_walls = -100
 r_else = -2
 if read_file:
     data = sio.loadmat('mdp_map.mat')
-    r = data['Mm']
-    c = data['Nm']
+    r = data['Mm'].item(0)
+    c = data['Nm'].item(0)
     obs = data['obs'] * r_obs
     goal = data['goal'] * r_goal
     walls = data['walls'] * r_walls
-    map = data['map']
+    map = walls + obs + goal
+    # map = data['map']
     x0 = 28 #Column in matrix
     y0 = 20 #Row in matrix
 else:

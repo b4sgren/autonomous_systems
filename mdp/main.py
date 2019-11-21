@@ -15,9 +15,9 @@ def drawArrows(ax, map, policy):
             elif policy[i,j] == 0: # North
                 plt.arrow(j, i + x0, 0, -arrow_len, head_width=w, head_length=l)
             elif policy[i,j] == 1: #South
-                plt.arrow(j, i - x0, 0, len, arrow_len, head_width=w, head_length=l)
+                plt.arrow(j, i - x0, 0, arrow_len, head_width=w, head_length=l)
             elif policy[i,j] == 2: #East
-                plt.arrow(j-x0,i, arrow_len, 0, head_width=w, head_length=l)
+                plt.arrow(j-x0, i, arrow_len, 0, head_width=w, head_length=l)
             else: #West
                 plt.arrow(j + x0, i, -arrow_len, 0, head_width=w, head_length=l)
     return ax

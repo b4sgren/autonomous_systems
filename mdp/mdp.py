@@ -9,6 +9,7 @@ class MDPPlanner:
         self.pf = params.p_forward
         self.pr = params.p_right
         self.pl = params.p_left
+        self.iter = 0
     
     def correcStaticCells(self):
         idx_walls = np.argwhere(params.walls < 0)
@@ -30,7 +31,10 @@ class MDPPlanner:
         r = np.zeros_like(self.map)
         r[idx[:,0], idx[:,1]] = params.r_else
         diff = 1e6
-        epsilon = .001
+        if params.read_file:
+            epsilon = 300
+        else:
+            epsilon = .001 
 
         while diff > epsilon:
             temp_diff = []
@@ -56,6 +60,7 @@ class MDPPlanner:
                         temp_diff.append(np.abs(self.map[i,j] - max))
                         self.map[i,j] = max
             diff = np.sum(temp_diff)
+            self.iter += 1
         debug = 1
 
     def createPolicyVectorized(self):

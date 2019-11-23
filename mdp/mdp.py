@@ -41,24 +41,24 @@ class MDPPlanner:
             for i in range(1,params.r-1):
                 for j in range(1,params.c-1):
                    if r[i,j] == -2:
-                        V_north = self.pf * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1,j]) + \
+                        V_north = (self.pf * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1,j]) + \
                                   self.pr * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
-                                  self.pl * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + r[i,j]
-                        V_south = self.pf * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + \
+                                  self.pl * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1])) + r[i,j]
+                        V_south = (self.pf * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + \
                                   self.pr * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
-                                  self.pl * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + r[i,j]
-                        V_east = self.pf * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
+                                  self.pl * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1])) + r[i,j]
+                        V_east = (self.pf * (params.walls[i, j+1] + params.obs[i, j+1] + params.goal[i, j+1] + self.map[i, j+1]) + \
                                   self.pr * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1, j]) + \
-                                  self.pl * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + r[i,j]
-                        V_west = self.pf * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + \
+                                  self.pl * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j])) + r[i,j]
+                        V_west = (self.pf * (params.walls[i, j-1] + params.obs[i, j-1] + params.goal[i, j-1] + self.map[i, j-1]) + \
                                   self.pr * (params.walls[i-1, j] + params.obs[i-1, j] + params.goal[i-1, j] + self.map[i-1, j]) + \
-                                  self.pl * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1, j]) + r[i,j]
+                                  self.pl * (params.walls[i+1, j] + params.obs[i+1, j] + params.goal[i+1, j] + self.map[i+1, j])) + r[i,j]
                         V = [V_north, V_south, V_east, V_west]
                         max = np.max(V)
                         argmax = np.argmax(V)
                         self.policy[i, j] = argmax
-                        temp_diff.append(np.abs(self.map[i,j] - max))
-                        self.map[i,j] = max
+                        temp_diff.append(np.abs(self.map[i,j] - max * self.gamma))
+                        self.map[i,j] = max * self.gamma
             diff = np.sum(temp_diff)
             self.iter += 1
         debug = 1

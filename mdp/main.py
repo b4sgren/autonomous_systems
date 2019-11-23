@@ -23,21 +23,33 @@ def drawArrows(ax, map, policy):
     return ax
 
 def drawPath(ax, y, x, policy):
-    # x = params.c - x
-    # y = params.r - y
+    pp_x = x 
+    pp_y = y 
+    p_x = x 
+    p_y = y
     while not np.isnan(policy[y,x]):
         if policy[y,x] == 3: #North
             plt.plot([x, x], [y, y-1], 'r')
+            pp_y = p_y
+            p_y = y
             y -= 1
         elif policy[y,x] == 2: #South
             plt.plot([x, x], [y, y+1], 'r')
+            pp_y = p_y
+            p_y = y
             y += 1
         elif policy[y,x] == 0: #East
             plt.plot([x, x+1], [y, y], 'r')
+            pp_x = p_x
+            p_x = x
             x += 1
         else:
             plt.plot([x, x-1], [y, y], 'r')
+            pp_x = p_x
+            p_x = x
             x -= 1
+        if pp_x == x and pp_y == y:
+            break
     return ax
             
 if __name__ == "__main__":
@@ -50,7 +62,7 @@ if __name__ == "__main__":
     plt.figure(1)
     ax = plt.imshow(planner.map * 255)
     ax = drawArrows(ax, planner.map, planner.policy)
-    ax = drawPath(ax, params.x0, params.y0, planner.policy)
+    # ax = drawPath(ax, params.x0, params.y0, planner.policy)
     plt.colorbar()
 
     plt.show()

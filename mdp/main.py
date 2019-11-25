@@ -62,7 +62,7 @@ if __name__ == "__main__":
     plt.figure(1)
     ax = plt.imshow(planner.map * 255)
     ax = drawArrows(ax, planner.map, planner.policy)
-    # ax = drawPath(ax, params.x0, params.y0, planner.policy)
+    ax = drawPath(ax, params.x0, params.y0, planner.policy)
     plt.colorbar()
 
     plt.show()

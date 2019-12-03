@@ -1,6 +1,7 @@
 import numpy as np
 
-N = 2 # Time horizon 
+steps = 2 # Time horizon 
+gamma = 1.0
 
 # Probability of transitioning to state p(s'|s,u): T(u, s, s')
 T = np.zeros((3,2,2))

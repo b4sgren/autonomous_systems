@@ -44,3 +44,11 @@ class POMDPPlanner:
                             vp = self.gamma * (r + v)
                             VV.append(vp)
                             debug = 1
+                        if not u in Yp.keys():
+                            Yp[u] = [VV]
+                        else:
+                            if not VV in Yp[u]:
+                                Yp[u].append(VV)
+            #Do pruning here
+            Y = Yp
+            debug = 1

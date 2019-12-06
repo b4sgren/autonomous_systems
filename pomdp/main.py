@@ -8,3 +8,13 @@ if __name__ == "__main__":
 
     planner.createPolicy()
     print("Created the policy")
+    print("Alpha Vectors: ")
+    print(planner.Y)
+
+    V, P = planner.getMax()
+
+    plt.figure(1)
+    plt.plot(P,V)
+    plt.xlim([0,1])
+    plt.ylim([-100, 100])
+    plt.show()

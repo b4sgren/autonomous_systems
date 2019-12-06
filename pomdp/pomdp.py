@@ -18,7 +18,6 @@ class POMDPPlanner:
     def prune(self):
         ind = np.unique(np.argmax(self.Y @ self.P, axis=0))
         self.Y = self.Y[ind]
-        debug = 1
     
     def sense(self):
         Pz_1 = np.diag(self.Z[:,0])

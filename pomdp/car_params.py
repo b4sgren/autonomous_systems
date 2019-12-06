@@ -1,7 +1,7 @@
 import numpy as np
 
-steps = 20 # Time horizon 
-gamma = 1.0
+steps = 10 # Time horizon 
+gamma = 1.0 #Currently not using this
 
 # Probability of transitioning to state p(s'|s,u): T(u, s, s')
 T = np.array([[0.2, 0.8], [0.8, 0.2]])
@@ -12,4 +12,5 @@ Z = np.array([[0.7, 0.3], [0.3, 0.7]])
 #Reward for executing u in state s: R(s, u)
 R = np.array([[-100.0, 100.0, -1.0], [100.0, -50.0, -1.0]]).T
 
-P = np.array([[np.arange(0, 1, .001)],[np.arange(1,0,-.001)]]).squeeze()
+step = .00001
+P = np.array([[np.arange(0, 1, step)],[np.arange(1,0,-step)]]).squeeze()

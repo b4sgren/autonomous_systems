@@ -30,7 +30,7 @@ class POMDPPlanner:
         if self.Y.shape[0] == 1:
             perm = perm1 
         else:
-            perm2 = np.array(list(permutations([0, 1])))
+            perm2 = np.array(list(permutations([i for i in range(self.Y.shape[0])], 2)))
             perm = np.array([*perm1, *perm2])
 
         self.Y = Vz_1[perm[:,0]] + Vz_2[perm[:,1]]
